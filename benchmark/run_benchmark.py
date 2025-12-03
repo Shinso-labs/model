@@ -10,6 +10,9 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend
 
 # Configuration
 BENCHMARK_DIR = Path("/Users/vargaelod/shinso/model/benchmark")
@@ -124,6 +127,123 @@ def test_contract(model_name, contract_name):
     return result
 
 
+def generate_charts(results, output_dir):
+    """Generate visualization charts for benchmark results"""
+
+    # Group by model
+    models_data = {}
+    for result in results:
+        model = result["model"]
+        if model not in models_data:
+            models_data[model] = []
+        models_data[model].append(result)
+
+    # Calculate statistics
+    model_stats = {}
+    for model in MODELS.keys():
+        model_results = [r for r in results if r["model"] == model]
+        model_stats[model] = {
+            "avg_score": sum(r["total_score"] for r in model_results) / len(model_results),
+            "compile_rate": sum(1 for r in model_results if r["compiles"]) / len(model_results) * 100,
+            "avg_compile": sum(r["compile_score"] for r in model_results) / len(model_results),
+            "avg_test": sum(r["test_score"] for r in model_results) / len(model_results),
+            "avg_quality": sum(r["quality_score"] for r in model_results) / len(model_results),
+            "total_passed": sum(r["tests_passed"] for r in model_results),
+            "total_expected": sum(r["tests_expected"] for r in model_results)
+        }
+
+    # Create figure with 3 subplots
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 5))
+    fig.suptitle('Benchmark Results Comparison', fontsize=16, fontweight='bold')
+
+    models = list(MODELS.keys())
+    colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']
+
+    # Chart 1: Overall Average Score
+    scores = [model_stats[m]["avg_score"] for m in models]
+    bars1 = ax1.bar(models, scores, color=colors[:len(models)], alpha=0.8, edgecolor='black')
+    ax1.set_ylabel('Average Score', fontweight='bold')
+    ax1.set_title('Overall Performance', fontweight='bold')
+    ax1.set_ylim(0, 100)
+    ax1.axhline(y=70, color='green', linestyle='--', linewidth=1, alpha=0.5, label='Production-viable')
+    ax1.axhline(y=50, color='orange', linestyle='--', linewidth=1, alpha=0.5, label='Needs refinement')
+    ax1.legend(fontsize=8)
+
+    # Add value labels on bars
+    for bar in bars1:
+        height = bar.get_height()
+        ax1.text(bar.get_x() + bar.get_width()/2., height,
+                f'{height:.1f}',
+                ha='center', va='bottom', fontweight='bold')
+
+    # Chart 2: Score Breakdown by Category
+    compile_scores = [model_stats[m]["avg_compile"] for m in models]
+    test_scores = [model_stats[m]["avg_test"] for m in models]
+    quality_scores = [model_stats[m]["avg_quality"] for m in models]
+
+    x = range(len(models))
+    width = 0.25
+
+    bars2a = ax2.bar([i - width for i in x], compile_scores, width, label='Compilation (40)', color='#FF6B6B', alpha=0.8, edgecolor='black')
+    bars2b = ax2.bar(x, test_scores, width, label='Tests (50)', color='#4ECDC4', alpha=0.8, edgecolor='black')
+    bars2c = ax2.bar([i + width for i in x], quality_scores, width, label='Quality (10)', color='#95E1D3', alpha=0.8, edgecolor='black')
+
+    ax2.set_ylabel('Score', fontweight='bold')
+    ax2.set_title('Score Breakdown by Category', fontweight='bold')
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(models)
+    ax2.legend()
+    ax2.set_ylim(0, 55)
+
+    # Add value labels
+    for bars in [bars2a, bars2b, bars2c]:
+        for bar in bars:
+            height = bar.get_height()
+            if height > 0:
+                ax2.text(bar.get_x() + bar.get_width()/2., height,
+                        f'{height:.1f}',
+                        ha='center', va='bottom', fontsize=8)
+
+    # Chart 3: Compilation vs Test Pass Rate
+    compile_rates = [model_stats[m]["compile_rate"] for m in models]
+    test_pass_rates = [(model_stats[m]["total_passed"] / model_stats[m]["total_expected"] * 100)
+                       for m in models]
+
+    x3 = range(len(models))
+    width3 = 0.35
+
+    bars3a = ax3.bar([i - width3/2 for i in x3], compile_rates, width3,
+                     label='Compilation Rate', color='#6C5CE7', alpha=0.8, edgecolor='black')
+    bars3b = ax3.bar([i + width3/2 for i in x3], test_pass_rates, width3,
+                     label='Test Pass Rate', color='#FDCB6E', alpha=0.8, edgecolor='black')
+
+    ax3.set_ylabel('Percentage (%)', fontweight='bold')
+    ax3.set_title('Compilation vs Test Success', fontweight='bold')
+    ax3.set_xticks(x3)
+    ax3.set_xticklabels(models)
+    ax3.legend()
+    ax3.set_ylim(0, 110)
+
+    # Add value labels
+    for bars in [bars3a, bars3b]:
+        for bar in bars:
+            height = bar.get_height()
+            ax3.text(bar.get_x() + bar.get_width()/2., height,
+                    f'{height:.1f}%',
+                    ha='center', va='bottom', fontsize=9, fontweight='bold')
+
+    plt.tight_layout()
+
+    # Save chart
+    chart_path = output_dir / "benchmark_charts.png"
+    plt.savefig(chart_path, dpi=300, bbox_inches='tight')
+    plt.close()
+
+    print(f"✓ Charts saved to: {chart_path}")
+
+    return chart_path
+
+
 def generate_markdown_table(results):
     """Generate a markdown table from results"""
 
@@ -138,6 +258,9 @@ def generate_markdown_table(results):
     # Generate comparison table
     markdown = "# Sui Move Translation Benchmark Results\n\n"
     markdown += f"**Benchmark Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+
+    markdown += "## Visual Comparison\n\n"
+    markdown += "![Benchmark Charts](benchmark_charts.png)\n\n"
 
     markdown += "## Scoring System\n\n"
     markdown += "- **Compilation (40 points):** Code compiles without errors\n"
@@ -228,6 +351,9 @@ def main():
             "results": results
         }, f, indent=2)
     print(f"\n✓ Results saved to: {results_json}")
+
+    # Generate charts
+    generate_charts(results, BENCHMARK_DIR)
 
     # Generate and save markdown report
     markdown = generate_markdown_table(results)

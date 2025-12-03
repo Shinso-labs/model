@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-12-03T18:05:55.872544",
+  "timestamp": "2025-12-03T19:14:44.287470",
   "results": [
     {
       "model": "solmover",
@@ -52,11 +52,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E04004]",
-        "error[E04023]",
-        "error[E04007]",
+        "error[E05001]",
         "error[E03006]",
-        "error[E03005]"
+        "error[E01003]",
+        "error[E04029]",
+        "error[E04031]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -100,9 +100,9 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
-        "error[E01002]",
         "error[E04007]",
-        "error[E04021]",
+        "error[E01002]",
+        "error[E04010]",
         "error[E03003]",
         "error[E04016]"
       ],
@@ -150,11 +150,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E01002]",
         "error[E03006]",
-        "error[E03003]",
-        "error[E04016]",
-        "error[E03002]"
+        "error[E01016]",
+        "error[E03004]",
+        "error[E03002]",
+        "error[E01002]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -170,11 +170,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E01002]",
-        "error[E04007]",
         "error[E03006]",
         "error[E05001]",
-        "error[E03003]"
+        "error[E04007]",
+        "error[E03002]",
+        "error[E01002]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -190,11 +190,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
+        "error[E05001]",
+        "error[E01003]",
         "error[E04004]",
         "error[E04007]",
-        "error[E04005]",
-        "error[E05001]",
-        "error[E01003]"
+        "error[E04005]"
       ],
       "compile_score": 0,
       "test_score": 0.0,

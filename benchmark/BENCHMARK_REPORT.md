@@ -1,6 +1,10 @@
 # Sui Move Translation Benchmark Results
 
-**Benchmark Date:** 2025-12-03 18:05:55
+**Benchmark Date:** 2025-12-03 19:14:44
+
+## Visual Comparison
+
+![Benchmark Charts](./benchmark_charts.png)
 
 ## Scoring System
 
