@@ -1,4 +1,4 @@
-module tipjar::tipjar;
+module tipjar::tip_jar;
 
 use sui::coin::{Self, Coin};
 use sui::event;
@@ -76,4 +76,9 @@ public fun get_owner(tip_jar: &TipJar): address {
 
 public fun is_owner(tip_jar: &TipJar, addr: address): bool {
     tip_jar.owner == addr
+}
+
+#[test_only]
+public fun init_for_testing(ctx: &mut TxContext) {
+    init(ctx);
 }

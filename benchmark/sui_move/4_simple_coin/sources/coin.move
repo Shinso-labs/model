@@ -24,4 +24,10 @@ module coin::coin {
     entry fun burn(treasury_cap: &mut TreasuryCap<COIN>, coin: Coin<COIN>) {
         coin::burn(treasury_cap, coin);
     }
+
+    #[test_only]
+    public fun init_for_testing(ctx: &mut TxContext) {
+        let witness = COIN {};
+        init(witness, ctx);
+    }
 }

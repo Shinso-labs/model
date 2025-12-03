@@ -1,9 +1,9 @@
 module weather_oracle::weather {
-    use sui::object::{Self, UID};
+    use sui::object::{Self, UID, ID};
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};
     use sui::table::{Self, Table};
-    use sui::string::{Self, String};
+    use std::string::{Self, String};
     use sui::event;
 
     /// The AdminCap is a capability object that grants its holder administrative privileges
@@ -11,6 +11,10 @@ module weather_oracle::weather {
     public struct AdminCap has key, store {
         id: UID,
     }
+
+    /// // Define a one-time witness to create the `Publisher` of the oracle.
+    public struct WEATHER has drop {}
+
 
     /// Represents the weather data for a specific city.
     /// This struct has `store` ability, meaning it can be stored inside other objects (like a Table).
@@ -45,9 +49,9 @@ module weather_oracle::weather {
         next_snapshot_id: u64,           // Counter for unique NFT IDs
     }
 
-    /// A WeatherSnapshot is an NFT representing a snapshot of a city's weather data at a point in time.
+    /// A CityWeatherOracle is an NFT representing a snapshot of a city's weather data at a point in time.
     /// This replaces the WeatherNFT ERC-721 contract.
-    public struct WeatherSnapshot has key, store {
+    public struct CityWeatherOracle has key, store {
         id: UID,
         token_id: u64, // Unique ID for this snapshot, similar to ERC721 tokenId
         geoname_id: u32,
@@ -73,8 +77,8 @@ module weather_oracle::weather {
     // ---- Events ----
     /// Emitted when the oracle is initialized.
     public struct OracleInitialized has copy, drop {
+        oracle_id: ID,
         admin: address,
-        oracle_id: UID,
         name: String,
         description: String,
     }
@@ -116,7 +120,7 @@ module weather_oracle::weather {
 
     /// Module initializer, called once on package publish.
     /// Creates and shares the WeatherOracle object, and transfers the AdminCap to the deployer.
-    fun init(ctx: &mut TxContext) {
+    fun init(_witness: WEATHER, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
 
         // Create the AdminCap and transfer it to the deployer.
@@ -338,24 +342,25 @@ module weather_oracle::weather {
 
     // ---------------- Snapshot NFT mint ----------------
 
-    /// @notice Mint a WeatherSnapshot NFT of the current city weather to the caller.
+    /// @notice Mint a CityWeatherOracle NFT of the current city weather to the caller.
     /// This replaces the mintSnapshot function in the Solidity WeatherOracle.
     public entry fun mint_snapshot(
         oracle: &mut WeatherOracle,
         geoname_id: u32,
         ctx: &mut TxContext,
     ) {
-        let c = require_city(oracle, geoname_id);
         let sender = tx_context::sender(ctx);
         let token_id = oracle.next_snapshot_id;
         oracle.next_snapshot_id = oracle.next_snapshot_id + 1;
 
-        let snapshot = WeatherSnapshot {
+        let c = require_city(oracle, geoname_id);
+
+        let snapshot = CityWeatherOracle {
             id: object::new(ctx),
             token_id,
             geoname_id: c.geoname_id,
-            name: string::copy(&c.name),
-            country: string::copy(&c.country),
+            name: c.name,
+            country: c.country,
             latitude: c.latitude,
             positive_latitude: c.positive_latitude,
             longitude: c.longitude,
@@ -377,22 +382,28 @@ module weather_oracle::weather {
         transfer::transfer(snapshot, sender);
     }
 
-    // ---------------- Getters for WeatherSnapshot (equivalent to WeatherNFT.getSnapshot) ----------------
+    // ---------------- Getters for CityWeatherOracle (equivalent to WeatherNFT.getSnapshot) ----------------
 
-    /// @notice Get the geoname ID from a WeatherSnapshot.
-    public fun snapshot_geoname_id(snapshot: &WeatherSnapshot): u32 {
+    /// @notice Get the geoname ID from a CityWeatherOracle.
+    public fun snapshot_geoname_id(snapshot: &CityWeatherOracle): u32 {
         snapshot.geoname_id
     }
 
-    /// @notice Get the name from a WeatherSnapshot.
-    public fun snapshot_name(snapshot: &WeatherSnapshot): String {
-        string::copy(&snapshot.name)
+    /// @notice Get the name from a CityWeatherOracle.
+    public fun snapshot_name(snapshot: &CityWeatherOracle): &String {
+        &snapshot.name
     }
 
-    /// @notice Get the country from a WeatherSnapshot.
-    public fun snapshot_country(snapshot: &WeatherSnapshot): String {
-        string::copy(&snapshot.country)
+    /// @notice Get the country from a CityWeatherOracle.
+    public fun snapshot_country(snapshot: &CityWeatherOracle): &String {
+        &snapshot.country
     }
 
     // ... (other snapshot getters can be added similarly if needed)
+
+    #[test_only]
+    public fun init_for_testing(ctx: &mut TxContext) {
+        let w = WEATHER {};
+        init(w, ctx);
+    }
 }

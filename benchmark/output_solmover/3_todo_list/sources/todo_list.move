@@ -65,7 +65,7 @@ module todo_list::todo_list {
 
     /// Create a new todo list
     public entry fun new(ctx: &mut TxContext) {
-        let store = borrow_global_mut<TodoListStore>(@todo_list);
+        let store = transfer::borrow<TodoListStore>(@todo_list);
         let list_id = store.next_id;
         store.next_id = store.next_id + 1;
 

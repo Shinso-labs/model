@@ -1,0 +1,235 @@
+{
+  "timestamp": "2025-12-03T18:05:55.872544",
+  "results": [
+    {
+      "model": "solmover",
+      "contract": "0_hello_world",
+      "compiles": true,
+      "tests_passed": 11,
+      "tests_total": 11,
+      "tests_expected": 11,
+      "warnings": 0,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 50.0,
+      "quality_score": 10,
+      "total_score": 100.0
+    },
+    {
+      "model": "solmover",
+      "contract": "1_tipjar",
+      "compiles": true,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 50.0,
+      "quality_score": 10,
+      "total_score": 100.0
+    },
+    {
+      "model": "solmover",
+      "contract": "2_guestbook",
+      "compiles": true,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 50.0,
+      "quality_score": 10,
+      "total_score": 100.0
+    },
+    {
+      "model": "solmover",
+      "contract": "3_todo_list",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 14,
+      "warnings": 0,
+      "errors": [
+        "error[E04004]",
+        "error[E04023]",
+        "error[E04007]",
+        "error[E03006]",
+        "error[E03005]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "solmover",
+      "contract": "4_simple_coin",
+      "compiles": true,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 50.0,
+      "quality_score": 10,
+      "total_score": 100.0
+    },
+    {
+      "model": "solmover",
+      "contract": "5_counter",
+      "compiles": true,
+      "tests_passed": 14,
+      "tests_total": 14,
+      "tests_expected": 14,
+      "warnings": 1,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 50.0,
+      "quality_score": 7,
+      "total_score": 97.0
+    },
+    {
+      "model": "solmover",
+      "contract": "6_weather_oracle",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 13,
+      "warnings": 0,
+      "errors": [
+        "error[E01002]",
+        "error[E04007]",
+        "error[E04021]",
+        "error[E03003]",
+        "error[E04016]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gemini-2.5",
+      "contract": "0_hello_world",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 11,
+      "warnings": 0,
+      "errors": [
+        "error[E11001]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gemini-2.5",
+      "contract": "1_tipjar",
+      "compiles": true,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 50.0,
+      "quality_score": 10,
+      "total_score": 100.0
+    },
+    {
+      "model": "gemini-2.5",
+      "contract": "2_guestbook",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [
+        "error[E01002]",
+        "error[E03006]",
+        "error[E03003]",
+        "error[E04016]",
+        "error[E03002]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gemini-2.5",
+      "contract": "3_todo_list",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 14,
+      "warnings": 0,
+      "errors": [
+        "error[E01002]",
+        "error[E04007]",
+        "error[E03006]",
+        "error[E05001]",
+        "error[E03003]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gemini-2.5",
+      "contract": "4_simple_coin",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [
+        "error[E04004]",
+        "error[E04007]",
+        "error[E04005]",
+        "error[E05001]",
+        "error[E01003]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gemini-2.5",
+      "contract": "5_counter",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 14,
+      "warnings": 0,
+      "errors": [
+        "error[E03003]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gemini-2.5",
+      "contract": "6_weather_oracle",
+      "compiles": true,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 13,
+      "warnings": 0,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 50.0
+    }
+  ]
+}

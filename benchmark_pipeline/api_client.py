@@ -13,10 +13,11 @@ logger = get_logger('api_client')
 class TranslationAPIClient:
     """Client for interacting with the Solidity to Move translation API."""
 
-    def __init__(self, api_url: str = API_ROOT, api_key: str = API_KEY, model: str = MODEL_NAME):
+    def __init__(self, api_url: str = API_ROOT, api_key: str = API_KEY, model: str = MODEL_NAME, stream_to_console: bool = False):
         self.api_url = api_url
         self.api_key = api_key
         self.model = model
+        self.stream_to_console = stream_to_console
         self.session = requests.Session()
         self.session.headers.update({"Authorization": f"Bearer {self.api_key}"})
 
@@ -117,11 +118,17 @@ class TranslationAPIClient:
                             generated_code += token
                             chunk_count += 1
 
+                            # Stream to console if enabled
+                            if self.stream_to_console and token:
+                                print(token, end='', flush=True)
+
                             if chunk_count % 50 == 0:
                                 logger.debug(f"Processed {chunk_count} chunks, generated {len(generated_code)} chars")
 
                             if chunk.get("done", False):
                                 logger.debug(f"Stream complete after {chunk_count} chunks")
+                                if self.stream_to_console:
+                                    print()  # Newline after streaming complete
                                 break
                         except json.JSONDecodeError as e:
                             logger.warning(f"Failed to parse streaming chunk: {line[:100]}... Error: {e}")

@@ -41,8 +41,8 @@ class BenchmarkResult:
 class BenchmarkRunner:
     """Orchestrates the benchmark pipeline."""
 
-    def __init__(self):
-        self.api_client = TranslationAPIClient()
+    def __init__(self, stream_to_console: bool = False):
+        self.api_client = TranslationAPIClient(stream_to_console=stream_to_console)
         self.evaluator = MoveCodeEvaluator()
         self.results: List[BenchmarkResult] = []
 
@@ -116,9 +116,22 @@ class BenchmarkRunner:
             )
 
         generated_code = api_result.get("generated_code", "")
+        raw_generated_code = api_result.get("raw_generated_code", "")
         response_time = api_result.get("response_time", 0)
 
         logger.info(f"[{case.name}] Translation completed in {response_time:.2f}s")
+
+        # Save raw output immediately to a streaming log file
+        if raw_generated_code:
+            stream_log_dir = os.path.join(RESULTS_DIR, "streaming_logs")
+            os.makedirs(stream_log_dir, exist_ok=True)
+            stream_log_file = os.path.join(stream_log_dir, f"{case.name}_raw_output.move")
+            with open(stream_log_file, 'w') as f:
+                f.write(f"# Raw streaming output for {case.name}\n")
+                f.write(f"# Generated at: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"# Response time: {response_time:.2f}s\n\n")
+                f.write(raw_generated_code)
+            logger.debug(f"[{case.name}] Saved raw streaming output to: {stream_log_file}")
 
         # Evaluate the generated code
         logger.info(f"[{case.name}] Starting evaluation...")
@@ -231,17 +244,18 @@ class BenchmarkRunner:
 
         logger.info(f"\nResults saved to: {results_file}")
 
-        # Save generated code for each test case
+        # Save generated code for each test case (both raw and cleaned)
         logger.debug("Saving generated code files...")
         for result in self.results:
             if result.generated_code:
+                # Save cleaned code
                 code_file = os.path.join(
                     output_dir,
                     f"{timestamp}_{result.test_case}_generated.move"
                 )
                 with open(code_file, 'w') as f:
                     f.write(result.generated_code)
-                logger.debug(f"Saved generated code: {code_file}")
+                logger.debug(f"Saved cleaned code: {code_file}")
 
         logger.info(f"Saved {len(self.results)} generated code files")
         return results_file

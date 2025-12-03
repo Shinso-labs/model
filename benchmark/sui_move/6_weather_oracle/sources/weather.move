@@ -326,3 +326,9 @@ public fun mint(
         dt: city_weather_oracle.dt
     }
 }
+
+#[test_only]
+public fun init_for_testing(ctx: &mut TxContext) {
+    let otw = WEATHER {};
+    init(otw, ctx);
+}

@@ -1,4 +1,4 @@
-module guestbook::guestbook {
+module guestbook::sui_guestbook {
     use sui::object::{Self, UID};
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};

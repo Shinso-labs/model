@@ -51,6 +51,11 @@ fun init(ctx: &mut TxContext) {
     transfer::share_object(tip_jar);
 }
 
+#[test_only]
+public fun init_for_testing(ctx: &mut TxContext) {
+    init(ctx);
+}
+
 public fun send_tip(tip_jar: &mut TipJar, payment: Coin<SUI>, ctx: &mut TxContext) {
     let tip_amount = coin::value(&payment);
 
