@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Benchmark script for comparing Sui Move translation models
-Compares SolMover vs Gemini-2.5 outputs
+Compares SolMover vs Gemini-2.5 vs Qwen3-Coder outputs
 """
 
 import os
@@ -27,7 +27,8 @@ CONTRACTS = [
 ]
 MODELS = {
     "solmover": "output_solmover",
-    "gemini-2.5": "output_gemini-2.5"
+    "gemini-2.5": "output_gemini-2.5",
+    "qwen3-coder": "output_qwen3-coder"
 }
 
 # Expected test counts (from the reference implementation)
