@@ -30,7 +30,8 @@ MODELS = {
     "gemini-2.5": "output_gemini-2.5",
     "qwen3-coder": "output_qwen3-coder",
     "gemini-3-pro-preview": "output_gemini-3-pro-preview",
-    "gpt-5.2-pro": "output_gpt-5.2-pro"
+    "gpt-5.2-pro": "output_gpt-5.2-pro",
+    "claude-4.5-sonnet": "output_claude-4.5-sonnet"
 }
 
 # Expected test counts (from the reference implementation)
@@ -160,7 +161,7 @@ def generate_charts(results, output_dir):
     fig.suptitle('Benchmark Results Comparison', fontsize=16, fontweight='bold')
 
     models = list(MODELS.keys())
-    colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']
+    colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#6A27B0', '#1A27B0']
 
     # Chart 1: Overall Average Score
     scores = [model_stats[m]["avg_score"] for m in models]

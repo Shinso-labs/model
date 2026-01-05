@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-01-05T20:32:50.484642",
+  "timestamp": "2026-01-05T23:06:37.787847",
   "results": [
     {
       "model": "solmover",
@@ -52,11 +52,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E03006]",
-        "error[E03005]",
-        "error[E04007]",
+        "error[E04004]",
+        "error[E04010]",
         "error[E01003]",
-        "error[E05001]"
+        "error[E04031]",
+        "error[E04035]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -100,11 +100,11 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
-        "error[E04007]",
-        "error[E03003]",
+        "error[E04010]",
+        "error[E04021]",
         "error[E01002]",
         "error[E04016]",
-        "error[E04010]"
+        "error[E04007]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -150,11 +150,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03006]",
-        "error[E01016]",
         "error[E03004]",
-        "error[E03003]",
-        "error[E03002]"
+        "error[E01016]",
+        "error[E01002]",
+        "error[E04016]",
+        "error[E03006]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -170,11 +170,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
+        "error[E03003]",
+        "error[E01002]",
         "error[E03006]",
         "error[E04007]",
-        "error[E05001]",
-        "error[E03003]",
-        "error[E03002]"
+        "error[E05001]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -190,11 +190,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E04007]",
+        "error[E04004]",
+        "error[E04010]",
         "error[E01003]",
-        "error[E05001]",
         "error[E03003]",
-        "error[E04017]"
+        "error[E04005]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -271,8 +271,8 @@
       "warnings": 0,
       "errors": [
         "error[E03006]",
-        "error[E05001]",
         "error[E03004]",
+        "error[E05001]",
         "error[E03002]"
       ],
       "compile_score": 0,
@@ -306,11 +306,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03006]",
-        "error[E03010]",
-        "error[E04007]",
-        "error[E03001]",
-        "error[E05001]"
+        "error[E03004]",
+        "error[E04004]",
+        "error[E04010]",
+        "error[E02001]",
+        "error[E03001]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -345,10 +345,10 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
+        "error[E03004]",
         "error[E03006]",
         "error[E04007]",
         "error[E05001]",
-        "error[E03004]",
         "error[E03002]"
       ],
       "compile_score": 0,
@@ -379,8 +379,8 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03003]",
-        "error[E04016]"
+        "error[E04016]",
+        "error[E03003]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -410,11 +410,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E04007]",
-        "error[E05001]",
-        "error[E01002]",
+        "error[E04004]",
         "error[E04005]",
-        "error[E04016]"
+        "error[E01002]",
+        "error[E04016]",
+        "error[E04007]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -430,11 +430,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03006]",
         "error[E03004]",
-        "error[E03002]",
+        "error[E04010]",
         "error[E04006]",
-        "error[E04010]"
+        "error[E03006]",
+        "error[E03002]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -450,9 +450,9 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E04017]",
+        "error[E03004]",
         "error[E03003]",
-        "error[E03004]"
+        "error[E04017]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -468,11 +468,11 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
-        "error[E03006]",
+        "error[E03004]",
+        "error[E04010]",
         "error[E03005]",
-        "error[E04007]",
-        "error[E05001]",
-        "error[E03004]"
+        "error[E03006]",
+        "error[E04007]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -488,11 +488,11 @@
       "tests_expected": 11,
       "warnings": 0,
       "errors": [
-        "error[E03006]",
-        "error[E04007]",
-        "error[E05001]",
         "error[E03004]",
-        "error[E03003]"
+        "error[E03003]",
+        "error[E04016]",
+        "error[E03006]",
+        "error[E04007]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -508,8 +508,8 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E05001]",
-        "error[E03003]"
+        "error[E03003]",
+        "error[E05001]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -525,11 +525,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03006]",
+        "error[E03004]",
         "error[E01003]",
-        "error[E05001]",
         "error[E03003]",
-        "error[E03004]"
+        "error[E03006]",
+        "error[E05001]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -545,11 +545,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E03006]",
-        "error[E03005]",
-        "error[E01003]",
         "error[E03004]",
-        "error[E03003]"
+        "error[E01003]",
+        "error[E03005]",
+        "error[E04016]",
+        "error[E03006]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -565,11 +565,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E04007]",
-        "error[E05001]",
+        "error[E04010]",
+        "error[E04004]",
         "error[E03003]",
-        "error[E03002]",
-        "error[E04005]"
+        "error[E04005]",
+        "error[E04016]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -603,6 +603,120 @@
         "error[E03003]",
         "error[E03005]"
       ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "claude-4.5-sonnet",
+      "contract": "0_hello_world",
+      "compiles": true,
+      "tests_passed": 11,
+      "tests_total": 11,
+      "tests_expected": 11,
+      "warnings": 11,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 50.0,
+      "quality_score": 3,
+      "total_score": 93.0
+    },
+    {
+      "model": "claude-4.5-sonnet",
+      "contract": "1_tipjar",
+      "compiles": true,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "tests_expected": 12,
+      "warnings": 14,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 50.0,
+      "quality_score": 3,
+      "total_score": 93.0
+    },
+    {
+      "model": "claude-4.5-sonnet",
+      "contract": "2_guestbook",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [
+        "error[E05001]",
+        "error[E03003]",
+        "error[E01003]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "claude-4.5-sonnet",
+      "contract": "3_todo_list",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 14,
+      "warnings": 0,
+      "errors": [
+        "error[E03004]",
+        "error[E01003]",
+        "error[E05001]",
+        "error[E04016]",
+        "error[E03006]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "claude-4.5-sonnet",
+      "contract": "4_simple_coin",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [
+        "error[E03004]",
+        "error[E04010]",
+        "error[E03001]",
+        "error[E04016]",
+        "error[E03006]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "claude-4.5-sonnet",
+      "contract": "5_counter",
+      "compiles": true,
+      "tests_passed": 14,
+      "tests_total": 14,
+      "tests_expected": 14,
+      "warnings": 6,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 50.0,
+      "quality_score": 3,
+      "total_score": 93.0
+    },
+    {
+      "model": "claude-4.5-sonnet",
+      "contract": "6_weather_oracle",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 13,
+      "warnings": 0,
+      "errors": [],
       "compile_score": 0,
       "test_score": 0.0,
       "quality_score": 10,
