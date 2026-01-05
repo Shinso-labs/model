@@ -29,7 +29,8 @@ MODELS = {
     "solmover": "output_solmover",
     "gemini-2.5": "output_gemini-2.5",
     "qwen3-coder": "output_qwen3-coder",
-    "gemini-3-pro-preview": "output_gemini-3-pro-preview"
+    "gemini-3-pro-preview": "output_gemini-3-pro-preview",
+    "gpt-5.2-pro": "output_gpt-5.2-pro"
 }
 
 # Expected test counts (from the reference implementation)

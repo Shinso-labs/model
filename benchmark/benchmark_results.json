@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-01-05T18:55:17.022965",
+  "timestamp": "2026-01-05T20:32:50.484642",
   "results": [
     {
       "model": "solmover",
@@ -52,11 +52,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E04004]",
+        "error[E03006]",
         "error[E03005]",
-        "error[E04031]",
+        "error[E04007]",
         "error[E01003]",
-        "error[E04010]"
+        "error[E05001]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -100,11 +100,11 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
-        "error[E04016]",
-        "error[E04010]",
+        "error[E04007]",
+        "error[E03003]",
         "error[E01002]",
-        "error[E04021]",
-        "error[E04007]"
+        "error[E04016]",
+        "error[E04010]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -150,11 +150,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03002]",
-        "error[E01016]",
-        "error[E04016]",
         "error[E03006]",
-        "error[E03004]"
+        "error[E01016]",
+        "error[E03004]",
+        "error[E03003]",
+        "error[E03002]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -170,11 +170,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E03002]",
-        "error[E03003]",
         "error[E03006]",
-        "error[E01002]",
-        "error[E04007]"
+        "error[E04007]",
+        "error[E05001]",
+        "error[E03003]",
+        "error[E03002]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -190,11 +190,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03003]",
-        "error[E04004]",
-        "error[E04017]",
+        "error[E04007]",
         "error[E01003]",
-        "error[E04016]"
+        "error[E05001]",
+        "error[E03003]",
+        "error[E04017]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -270,10 +270,10 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03002]",
+        "error[E03006]",
         "error[E05001]",
         "error[E03004]",
-        "error[E03006]"
+        "error[E03002]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -306,11 +306,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03002]",
+        "error[E03006]",
         "error[E03010]",
-        "error[E04004]",
+        "error[E04007]",
         "error[E03001]",
-        "error[E04016]"
+        "error[E05001]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -326,8 +326,8 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E07002]",
         "error[E05001]",
+        "error[E07002]",
         "error[E04024]",
         "error[E04017]"
       ],
@@ -345,11 +345,11 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
-        "error[E03002]",
         "error[E03006]",
-        "error[E03004]",
         "error[E04007]",
-        "error[E05001]"
+        "error[E05001]",
+        "error[E03004]",
+        "error[E03002]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -410,11 +410,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E04004]",
-        "error[E04016]",
-        "error[E01002]",
         "error[E04007]",
-        "error[E04005]"
+        "error[E05001]",
+        "error[E01002]",
+        "error[E04005]",
+        "error[E04016]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -430,11 +430,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03002]",
-        "error[E04010]",
         "error[E03006]",
         "error[E03004]",
-        "error[E04006]"
+        "error[E03002]",
+        "error[E04006]",
+        "error[E04010]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -450,9 +450,9 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
+        "error[E04017]",
         "error[E03003]",
-        "error[E04017]"
+        "error[E03004]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -468,11 +468,140 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
-        "error[E03002]",
-        "error[E03005]",
-        "error[E04010]",
         "error[E03006]",
+        "error[E03005]",
+        "error[E04007]",
+        "error[E05001]",
         "error[E03004]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gpt-5.2-pro",
+      "contract": "0_hello_world",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 11,
+      "warnings": 0,
+      "errors": [
+        "error[E03006]",
+        "error[E04007]",
+        "error[E05001]",
+        "error[E03004]",
+        "error[E03003]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gpt-5.2-pro",
+      "contract": "1_tipjar",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [
+        "error[E05001]",
+        "error[E03003]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gpt-5.2-pro",
+      "contract": "2_guestbook",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [
+        "error[E03006]",
+        "error[E01003]",
+        "error[E05001]",
+        "error[E03003]",
+        "error[E03004]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gpt-5.2-pro",
+      "contract": "3_todo_list",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 14,
+      "warnings": 0,
+      "errors": [
+        "error[E03006]",
+        "error[E03005]",
+        "error[E01003]",
+        "error[E03004]",
+        "error[E03003]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gpt-5.2-pro",
+      "contract": "4_simple_coin",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 12,
+      "warnings": 0,
+      "errors": [
+        "error[E04007]",
+        "error[E05001]",
+        "error[E03003]",
+        "error[E03002]",
+        "error[E04005]"
+      ],
+      "compile_score": 0,
+      "test_score": 0.0,
+      "quality_score": 10,
+      "total_score": 10.0
+    },
+    {
+      "model": "gpt-5.2-pro",
+      "contract": "5_counter",
+      "compiles": true,
+      "tests_passed": 13,
+      "tests_total": 13,
+      "tests_expected": 14,
+      "warnings": 18,
+      "errors": [],
+      "compile_score": 40,
+      "test_score": 46.43,
+      "quality_score": 3,
+      "total_score": 89.43
+    },
+    {
+      "model": "gpt-5.2-pro",
+      "contract": "6_weather_oracle",
+      "compiles": false,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "tests_expected": 13,
+      "warnings": 0,
+      "errors": [
+        "error[E04010]",
+        "error[E03003]",
+        "error[E03005]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
