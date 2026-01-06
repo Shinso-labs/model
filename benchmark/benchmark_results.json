@@ -1,5 +1,60 @@
 {
-  "timestamp": "2026-01-05T23:06:37.787847",
+  "benchmark_metadata": {
+    "version": "1.0.0",
+    "timestamp": "2026-01-06T13:25:23.529742",
+    "environment": {
+      "sui_cli": "sui 1.61.2-homebrew",
+      "python": "3.13.2",
+      "os": "Darwin 25.1.0",
+      "platform": "macOS-26.1-arm64-arm-64bit-Mach-O"
+    },
+    "models": {
+      "solmover": {
+        "version": "1.0.0",
+        "provider": "Internal",
+        "api_endpoint": "internal",
+        "temperature": 0.2,
+        "max_tokens": 4096
+      },
+      "gemini-2.5": {
+        "version": "2.5",
+        "provider": "Google",
+        "api_endpoint": "gemini-2.5-flash-preview",
+        "temperature": 0.2,
+        "max_tokens": 4096
+      },
+      "qwen3-coder": {
+        "version": "3.0",
+        "provider": "Alibaba Cloud",
+        "api_endpoint": "qwen-coder-3",
+        "temperature": 0.2,
+        "max_tokens": 4096
+      },
+      "gemini-3-pro-preview": {
+        "version": "3.0-preview",
+        "provider": "Google",
+        "api_endpoint": "gemini-3-pro-preview",
+        "temperature": 0.2,
+        "max_tokens": 4096
+      },
+      "gpt-5.2-pro": {
+        "version": "5.2",
+        "provider": "OpenAI",
+        "api_endpoint": "gpt-5.2-pro",
+        "temperature": 0.2,
+        "max_tokens": 4096
+      },
+      "claude-4.5-sonnet": {
+        "version": "4.5",
+        "provider": "Anthropic",
+        "api_endpoint": "claude-sonnet-4-20250514",
+        "temperature": 0.2,
+        "max_tokens": 4096
+      }
+    },
+    "total_contracts": 7,
+    "total_tests": 88
+  },
   "results": [
     {
       "model": "solmover",
@@ -52,11 +107,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
+        "error[E03003]",
+        "error[E05001]",
         "error[E04004]",
-        "error[E04010]",
-        "error[E01003]",
-        "error[E04031]",
-        "error[E04035]"
+        "error[E04023]",
+        "error[E04010]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -100,11 +155,11 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
-        "error[E04010]",
-        "error[E04021]",
         "error[E01002]",
-        "error[E04016]",
-        "error[E04007]"
+        "error[E03003]",
+        "error[E04010]",
+        "error[E04007]",
+        "error[E04021]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -150,11 +205,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
-        "error[E01016]",
         "error[E01002]",
-        "error[E04016]",
-        "error[E03006]"
+        "error[E03002]",
+        "error[E03003]",
+        "error[E01016]",
+        "error[E03004]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -170,9 +225,9 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E03003]",
         "error[E01002]",
-        "error[E03006]",
+        "error[E03002]",
+        "error[E03003]",
         "error[E04007]",
         "error[E05001]"
       ],
@@ -190,11 +245,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
+        "error[E05001]",
+        "error[E03003]",
         "error[E04004]",
         "error[E04010]",
-        "error[E01003]",
-        "error[E03003]",
-        "error[E04005]"
+        "error[E04007]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -270,9 +325,9 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03006]",
-        "error[E03004]",
         "error[E05001]",
+        "error[E03004]",
+        "error[E03006]",
         "error[E03002]"
       ],
       "compile_score": 0,
@@ -289,8 +344,8 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E04016]",
-        "error[E01003]"
+        "error[E01003]",
+        "error[E04016]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -306,11 +361,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
+        "error[E03002]",
+        "error[E05001]",
+        "error[E03001]",
         "error[E04004]",
-        "error[E04010]",
-        "error[E02001]",
-        "error[E03001]"
+        "error[E02001]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -327,9 +382,9 @@
       "warnings": 0,
       "errors": [
         "error[E05001]",
+        "error[E04017]",
         "error[E07002]",
-        "error[E04024]",
-        "error[E04017]"
+        "error[E04024]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -345,11 +400,11 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
-        "error[E03006]",
+        "error[E03002]",
         "error[E04007]",
         "error[E05001]",
-        "error[E03002]"
+        "error[E03004]",
+        "error[E03006]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -410,11 +465,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E04004]",
-        "error[E04005]",
         "error[E01002]",
-        "error[E04016]",
-        "error[E04007]"
+        "error[E05001]",
+        "error[E04004]",
+        "error[E04007]",
+        "error[E04005]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -430,11 +485,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
+        "error[E03002]",
         "error[E04010]",
+        "error[E03004]",
         "error[E04006]",
-        "error[E03006]",
-        "error[E03002]"
+        "error[E03006]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -451,8 +506,8 @@
       "warnings": 0,
       "errors": [
         "error[E03004]",
-        "error[E03003]",
-        "error[E04017]"
+        "error[E04017]",
+        "error[E03003]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -468,11 +523,11 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
-        "error[E04010]",
         "error[E03005]",
-        "error[E03006]",
-        "error[E04007]"
+        "error[E03002]",
+        "error[E04010]",
+        "error[E04007]",
+        "error[E05001]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -488,11 +543,11 @@
       "tests_expected": 11,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
+        "error[E03002]",
         "error[E03003]",
-        "error[E04016]",
-        "error[E03006]",
-        "error[E04007]"
+        "error[E04007]",
+        "error[E05001]",
+        "error[E03004]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -508,8 +563,8 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03003]",
-        "error[E05001]"
+        "error[E05001]",
+        "error[E03003]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -525,11 +580,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
-        "error[E01003]",
+        "error[E03002]",
         "error[E03003]",
-        "error[E03006]",
-        "error[E05001]"
+        "error[E01003]",
+        "error[E05001]",
+        "error[E03004]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -545,11 +600,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
+        "error[E03002]",
+        "error[E03003]",
         "error[E01003]",
         "error[E03005]",
-        "error[E04016]",
-        "error[E03006]"
+        "error[E03004]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -565,11 +620,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E04010]",
-        "error[E04004]",
+        "error[E03002]",
         "error[E03003]",
-        "error[E04005]",
-        "error[E04016]"
+        "error[E04004]",
+        "error[E04010]",
+        "error[E04007]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -599,9 +654,9 @@
       "tests_expected": 13,
       "warnings": 0,
       "errors": [
+        "error[E03005]",
         "error[E04010]",
-        "error[E03003]",
-        "error[E03005]"
+        "error[E03003]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -646,8 +701,8 @@
       "warnings": 0,
       "errors": [
         "error[E05001]",
-        "error[E03003]",
-        "error[E01003]"
+        "error[E01003]",
+        "error[E03003]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -663,11 +718,11 @@
       "tests_expected": 14,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
+        "error[E03002]",
+        "error[E03003]",
+        "error[E04007]",
         "error[E01003]",
-        "error[E05001]",
-        "error[E04016]",
-        "error[E03006]"
+        "error[E05001]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -683,11 +738,11 @@
       "tests_expected": 12,
       "warnings": 0,
       "errors": [
-        "error[E03004]",
-        "error[E04010]",
+        "error[E03002]",
         "error[E03001]",
-        "error[E04016]",
-        "error[E03006]"
+        "error[E04010]",
+        "error[E04007]",
+        "error[E03004]"
       ],
       "compile_score": 0,
       "test_score": 0.0,
@@ -722,5 +777,322 @@
       "quality_score": 10,
       "total_score": 10.0
     }
-  ]
+  ],
+  "statistical_analysis": {
+    "chi_square": {
+      "statistic": 103.79363667464935,
+      "p_value": 8.376529823572735e-21,
+      "dof": 5
+    },
+    "confidence_intervals": {
+      "solmover": {
+        "rate": 69.31818181818183,
+        "lower": 59.043848425304624,
+        "upper": 77.97646945355183
+      },
+      "gemini-2.5": {
+        "rate": 13.636363636363635,
+        "lower": 7.975945381735222,
+        "upper": 22.338750375711484
+      },
+      "qwen3-coder": {
+        "rate": 13.636363636363635,
+        "lower": 7.975945381735222,
+        "upper": 22.338750375711484
+      },
+      "gemini-3-pro-preview": {
+        "rate": 26.136363636363637,
+        "lower": 18.093239119935774,
+        "upper": 36.17577997088863
+      },
+      "gpt-5.2-pro": {
+        "rate": 14.772727272727273,
+        "lower": 8.841251043157245,
+        "upper": 23.651110471869252
+      },
+      "claude-4.5-sonnet": {
+        "rate": 42.04545454545455,
+        "lower": 32.27709232506629,
+        "upper": 52.47924737187518
+      }
+    },
+    "pairwise_comparisons": [
+      {
+        "model1": "solmover",
+        "model2": "gemini-2.5",
+        "diff": 55.68181818181819,
+        "p_value": 3.30535983712595e-14
+      },
+      {
+        "model1": "solmover",
+        "model2": "qwen3-coder",
+        "diff": 55.68181818181819,
+        "p_value": 3.30535983712595e-14
+      },
+      {
+        "model1": "solmover",
+        "model2": "gemini-3-pro-preview",
+        "diff": 43.18181818181819,
+        "p_value": 1.429206833949917e-08
+      },
+      {
+        "model1": "solmover",
+        "model2": "gpt-5.2-pro",
+        "diff": 54.545454545454554,
+        "p_value": 1.3980613019375539e-13
+      },
+      {
+        "model1": "solmover",
+        "model2": "claude-4.5-sonnet",
+        "diff": 27.272727272727277,
+        "p_value": 0.00044823616526744716
+      },
+      {
+        "model1": "gemini-2.5",
+        "model2": "qwen3-coder",
+        "diff": 0.0,
+        "p_value": 1.0
+      },
+      {
+        "model1": "gemini-2.5",
+        "model2": "gemini-3-pro-preview",
+        "diff": -12.5,
+        "p_value": 0.0579493290866137
+      },
+      {
+        "model1": "gemini-2.5",
+        "model2": "gpt-5.2-pro",
+        "diff": -1.136363636363638,
+        "p_value": 1.0
+      },
+      {
+        "model1": "gemini-2.5",
+        "model2": "claude-4.5-sonnet",
+        "diff": -28.40909090909091,
+        "p_value": 4.142765235880244e-05
+      },
+      {
+        "model1": "qwen3-coder",
+        "model2": "gemini-3-pro-preview",
+        "diff": -12.5,
+        "p_value": 0.0579493290866137
+      },
+      {
+        "model1": "qwen3-coder",
+        "model2": "gpt-5.2-pro",
+        "diff": -1.136363636363638,
+        "p_value": 1.0
+      },
+      {
+        "model1": "qwen3-coder",
+        "model2": "claude-4.5-sonnet",
+        "diff": -28.40909090909091,
+        "p_value": 4.142765235880244e-05
+      },
+      {
+        "model1": "gemini-3-pro-preview",
+        "model2": "gpt-5.2-pro",
+        "diff": 11.363636363636362,
+        "p_value": 0.09171984330713939
+      },
+      {
+        "model1": "gemini-3-pro-preview",
+        "model2": "claude-4.5-sonnet",
+        "diff": -15.909090909090912,
+        "p_value": 0.03827250697239526
+      },
+      {
+        "model1": "gpt-5.2-pro",
+        "model2": "claude-4.5-sonnet",
+        "diff": -27.27272727272727,
+        "p_value": 9.770880152323962e-05
+      }
+    ]
+  },
+  "error_analysis": {
+    "by_model": {
+      "solmover": {
+        "error[E03003]": 2,
+        "error[E05001]": 1,
+        "error[E04004]": 1,
+        "error[E04023]": 1,
+        "error[E04010]": 2,
+        "error[E01002]": 1,
+        "error[E04007]": 1,
+        "error[E04021]": 1
+      },
+      "gemini-2.5": {
+        "error[E11001]": 1,
+        "error[E01002]": 2,
+        "error[E03002]": 2,
+        "error[E03003]": 4,
+        "error[E01016]": 1,
+        "error[E03004]": 1,
+        "error[E04007]": 2,
+        "error[E05001]": 2,
+        "error[E04004]": 1,
+        "error[E04010]": 1
+      },
+      "qwen3-coder": {
+        "error[E11001]": 1,
+        "error[E05001]": 4,
+        "error[E03004]": 2,
+        "error[E03006]": 2,
+        "error[E03002]": 3,
+        "error[E01003]": 1,
+        "error[E04016]": 1,
+        "error[E03001]": 1,
+        "error[E04004]": 1,
+        "error[E02001]": 1,
+        "error[E04017]": 1,
+        "error[E07002]": 1,
+        "error[E04024]": 1,
+        "error[E04007]": 1
+      },
+      "gemini-3-pro-preview": {
+        "error[E04016]": 1,
+        "error[E03003]": 2,
+        "error[E01002]": 1,
+        "error[E05001]": 2,
+        "error[E04004]": 1,
+        "error[E04007]": 2,
+        "error[E04005]": 1,
+        "error[E03002]": 2,
+        "error[E04010]": 2,
+        "error[E03004]": 2,
+        "error[E04006]": 1,
+        "error[E03006]": 1,
+        "error[E04017]": 1,
+        "error[E03005]": 1
+      },
+      "gpt-5.2-pro": {
+        "error[E03002]": 4,
+        "error[E03003]": 6,
+        "error[E04007]": 2,
+        "error[E05001]": 3,
+        "error[E03004]": 3,
+        "error[E01003]": 2,
+        "error[E03005]": 2,
+        "error[E04004]": 1,
+        "error[E04010]": 2
+      },
+      "claude-4.5-sonnet": {
+        "error[E05001]": 2,
+        "error[E01003]": 2,
+        "error[E03003]": 2,
+        "error[E03002]": 2,
+        "error[E04007]": 2,
+        "error[E03001]": 1,
+        "error[E04010]": 1,
+        "error[E03004]": 1
+      }
+    },
+    "by_type": {
+      "error[E03003]": {
+        "total": 16,
+        "models": {
+          "solmover": 2,
+          "gemini-2.5": 4,
+          "gemini-3-pro-preview": 2,
+          "gpt-5.2-pro": 6,
+          "claude-4.5-sonnet": 2
+        },
+        "description": "Unbound module member"
+      },
+      "error[E05001]": {
+        "total": 14,
+        "models": {
+          "solmover": 1,
+          "gemini-2.5": 2,
+          "qwen3-coder": 4,
+          "gemini-3-pro-preview": 2,
+          "gpt-5.2-pro": 3,
+          "claude-4.5-sonnet": 2
+        },
+        "description": "Ability constraint not satisfied"
+      },
+      "error[E03002]": {
+        "total": 13,
+        "models": {
+          "gemini-2.5": 2,
+          "qwen3-coder": 3,
+          "gemini-3-pro-preview": 2,
+          "gpt-5.2-pro": 4,
+          "claude-4.5-sonnet": 2
+        },
+        "description": "Unbound module"
+      },
+      "error[E04007]": {
+        "total": 10,
+        "models": {
+          "solmover": 1,
+          "gemini-2.5": 2,
+          "qwen3-coder": 1,
+          "gemini-3-pro-preview": 2,
+          "gpt-5.2-pro": 2,
+          "claude-4.5-sonnet": 2
+        },
+        "description": "Incompatible types"
+      },
+      "error[E03004]": {
+        "total": 9,
+        "models": {
+          "gemini-2.5": 1,
+          "qwen3-coder": 2,
+          "gemini-3-pro-preview": 2,
+          "gpt-5.2-pro": 3,
+          "claude-4.5-sonnet": 1
+        },
+        "description": "Unbound type"
+      },
+      "error[E04010]": {
+        "total": 8,
+        "models": {
+          "solmover": 2,
+          "gemini-2.5": 1,
+          "gemini-3-pro-preview": 2,
+          "gpt-5.2-pro": 2,
+          "claude-4.5-sonnet": 1
+        },
+        "description": "Cannot infer type"
+      },
+      "error[E04004]": {
+        "total": 5,
+        "models": {
+          "solmover": 1,
+          "gemini-2.5": 1,
+          "qwen3-coder": 1,
+          "gemini-3-pro-preview": 1,
+          "gpt-5.2-pro": 1
+        },
+        "description": "Expected a single non-reference type"
+      },
+      "error[E01003]": {
+        "total": 5,
+        "models": {
+          "qwen3-coder": 1,
+          "gpt-5.2-pro": 2,
+          "claude-4.5-sonnet": 2
+        },
+        "description": "Invalid modifier"
+      },
+      "error[E01002]": {
+        "total": 4,
+        "models": {
+          "solmover": 1,
+          "gemini-2.5": 2,
+          "gemini-3-pro-preview": 1
+        },
+        "description": "Unexpected token"
+      },
+      "error[E03006]": {
+        "total": 3,
+        "models": {
+          "qwen3-coder": 2,
+          "gemini-3-pro-preview": 1
+        },
+        "description": "Unexpected name in this position"
+      }
+    }
+  }
 }

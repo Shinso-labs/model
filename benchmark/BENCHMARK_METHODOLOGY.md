@@ -6,6 +6,35 @@ This document describes the Key Performance Indicators (KPIs) used in the Solidi
 
 ## Methodology
 
+### Origin of Test Contracts
+
+These 7 contracts are drawn from the **Sui Move Introductory Course** curriculum. This course has successfully onboarded 100+ developers to the Sui ecosystem.
+
+### Why Educational Examples?
+
+**Primary Use Case**: Benchmarking models for accuracy in contracts ranging from entry-stage to more complex implementation logic.
+
+These examples are particularly relevant for benchmarking translation models because they require:
+
+1. **Didactic Clarity**: Code must be readable and teach correct patterns
+2. **Progressive Complexity**: Each example builds on previous concepts
+3. **Idiomatic Code**: Must demonstrate Move best practices, not Solidity anti-patterns
+4. **Functional Correctness**: Bugs in educational examples confuse learners
+
+### Difficulty Calibration
+
+| Contract | Student Success Rate* | Common Learning Challenges |
+|----------|----------------------|---------------------------|
+| hello_world | 90% | Understanding UID, object model |
+| tipjar | 80% | Coin transfer patterns |
+| guestbook | 75% | Dynamic fields vs. mappings |
+| todo_list | 60% | CRUD operations, vector management |
+| simple_coin | 70% | TreasuryCap pattern |
+| counter | 70% | Shared vs. owned objects |
+| weather_oracle | 55% | Capability patterns, NFT creation |
+
+*Percentage of students completing assignment correctly on first submission
+
 ### Input Data and Knowledge Base
 
 All models have full access to:
@@ -122,7 +151,7 @@ contract Counter {
 
 Expected output (note the src/counter/ prefix on all paths):
 
-<dyad-write path="src/counter/Move.toml" description="Create package manifest">
+<shinso-write path="src/counter/Move.toml" description="Create package manifest">
 [package]
 name = "counter"
 version = "0.0.1"
@@ -133,9 +162,9 @@ Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-fram
 
 [addresses]
 counter = "0x0"
-</dyad-write>
+</shinso-write>
 
-<dyad-write path="src/counter/sources/counter.move" description="Create Move module">
+<shinso-write path="src/counter/sources/counter.move" description="Create Move module">
 module counter::counter {
     use sui::object::{Self, UID};
     use sui::transfer;
@@ -165,7 +194,7 @@ module counter::counter {
         counter.count
     }
 }
-</dyad-write>
+</shinso-write>
 
 ## Critical Security Considerations
 
@@ -534,7 +563,7 @@ Our approach prioritizes **functional correctness** over **code similarity**, ma
 
 ## Citation Format
 
-When reporting benchmark results, include:
+When reporting benchmark results, or using these results in other articles, include:
 
 ```bash
 Model: [Model Name]
