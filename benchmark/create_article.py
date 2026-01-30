@@ -24,7 +24,7 @@ def create_benchmark_article():
     """Create comprehensive PDF article"""
 
     # Create PDF
-    pdf_path = "./Shinso_Solmover_Benchmark_2026_01_06.pdf"
+    pdf_path = "./Shinso_Solmover_Benchmark_2026_01_30.pdf"
     doc = SimpleDocTemplate(
         pdf_path,
         pagesize=letter,

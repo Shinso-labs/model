@@ -1,0 +1,8 @@
+[package]
+name = "weather_oracle"
+edition = "2024.beta"
+
+[dependencies]
+
+[addresses]
+weather_oracle = "0x0"

@@ -36,7 +36,8 @@ MODELS = {
     "qwen3-coder": "output_qwen3-coder",
     "gemini-3-pro-preview": "output_gemini-3-pro-preview",
     "gpt-5.2-pro": "output_gpt-5.2-pro",
-    "claude-4.5-sonnet": "output_claude-4.5-sonnet"
+    "claude-4.5-sonnet": "output_claude-4.5-sonnet",
+    "claude-4.5-opus": "output_claude-4.5-opus"
 }
 
 # Expected test counts (from the reference implementation)
@@ -91,6 +92,13 @@ MODELS_CONFIG = {
         "version": "4.5",
         "provider": "Anthropic",
         "api_endpoint": "claude-sonnet-4-20250514",
+        "temperature": 0.2,
+        "max_tokens": 4096
+    },
+    "claude-4.5-opus": {
+        "version": "4.5",
+        "provider": "Anthropic",
+        "api_endpoint": "claude-opus-4-5-20251101",
         "temperature": 0.2,
         "max_tokens": 4096
     }

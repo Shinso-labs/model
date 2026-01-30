@@ -3,3 +3,4 @@
 **/.claude
 /containerization/solmover.gguf
 venv
+.DS_Store
