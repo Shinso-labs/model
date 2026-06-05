@@ -37,7 +37,10 @@ MODELS = {
     "gemini-3-pro-preview": "output_gemini-3-pro-preview",
     "gpt-5.2-pro": "output_gpt-5.2-pro",
     "claude-4.5-sonnet": "output_claude-4.5-sonnet",
-    "claude-4.5-opus": "output_claude-4.5-opus"
+    "claude-4.5-opus": "output_claude-4.5-opus",
+    # New models added 2026-Q2 — populated by translate_no_tools.py
+    "claude-4.7-opus": "output_claude-4.7-opus",
+    "gpt-5.5": "output_gpt-5.5",
 }
 
 # Expected test counts (from the reference implementation)
@@ -101,6 +104,20 @@ MODELS_CONFIG = {
         "api_endpoint": "claude-opus-4-5-20251101",
         "temperature": 0.2,
         "max_tokens": 4096
+    },
+    "claude-4.7-opus": {
+        "version": "4.7",
+        "provider": "Anthropic",
+        "api_endpoint": "claude-opus-4-7",
+        "temperature": 0.2,
+        "max_tokens": 8192
+    },
+    "gpt-5.5": {
+        "version": "5.5",
+        "provider": "OpenAI",
+        "api_endpoint": os.environ.get("OPENAI_MODEL_ID", "gpt-5.5"),
+        "temperature": 0.2,
+        "max_tokens": 8192
     }
 }
 
@@ -634,6 +651,19 @@ def main():
     print("   SUI MOVE TRANSLATION BENCHMARK")
     print("=" * 60)
     print()
+
+    # Skip models whose output directory doesn't exist (e.g. no-tools entries
+    # before translate_no_tools.py has been run for them). This keeps the
+    # report focused on models that actually have data.
+    skipped = [m for m, d in MODELS.items() if not (BENCHMARK_DIR / d).exists()]
+    for m in skipped:
+        print(f"  (skipping {m}: {BENCHMARK_DIR / MODELS[m]} not found)")
+        del MODELS[m]
+    if skipped:
+        print()
+    if not MODELS:
+        print("No model output directories exist. Run translate_no_tools.py first.")
+        return
 
     results = []
 

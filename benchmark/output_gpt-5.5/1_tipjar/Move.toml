@@ -1,0 +1,8 @@
+[package]
+name = "tipjar"
+edition = "2024.beta"
+
+[dependencies]
+
+[addresses]
+tipjar = "0x0"
