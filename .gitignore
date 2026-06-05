@@ -4,3 +4,6 @@
 /containerization/solmover.gguf
 venv
 .DS_Store
+
+# Benchmark debug logs (may contain endpoint/key fragments)
+benchmark/solmover_debug*.log

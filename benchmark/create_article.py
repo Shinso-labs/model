@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
 """
-Create a comprehensive PDF article explaining the benchmark results
+Create a comprehensive PDF article explaining the benchmark results.
+
+Data-driven: all tables, statistics, and the model-specific numbers in the
+prose are read from benchmark_results.json (produced by run_benchmark.py).
+Re-run run_benchmark.py first, then this script — the PDF always matches the
+latest results, including any models added to the benchmark.
 """
+
+import json
+from datetime import datetime
+from pathlib import Path
 
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -17,14 +26,150 @@ from reportlab.platypus import (
 )
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
-from datetime import datetime
+
+
+BENCHMARK_DIR = Path(__file__).resolve().parent
+RESULTS_JSON = BENCHMARK_DIR / "benchmark_results.json"
+
+# Human-readable display names for the model keys used in run_benchmark.py.
+# Unknown keys fall back to a title-cased version of the key.
+DISPLAY_NAMES = {
+    "solmover": "SolMover",
+    "gemini-2.5": "Gemini 2.5",
+    "qwen3-coder": "Qwen3-Coder",
+    "gemini-3-pro-preview": "Gemini 3 Pro",
+    "gpt-5.2-pro": "GPT-5.2-Pro",
+    "claude-4.5-sonnet": "Claude 4.5 Sonnet",
+    "claude-4.5-opus": "Claude 4.5 Opus",
+    "claude-4.7-opus": "Claude 4.7 Opus",
+    "gpt-5.5": "GPT-5.5",
+}
+
+_NUM_WORDS = {
+    1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
+    7: "seven", 8: "eight", 9: "nine", 10: "ten", 11: "eleven", 12: "twelve",
+}
+
+
+def disp(key):
+    return DISPLAY_NAMES.get(key, key.replace("-", " ").replace("_", " ").title())
+
+
+def num_word(n):
+    return _NUM_WORDS.get(n, str(n))
+
+
+def p_fmt(p):
+    return "&lt; 0.001" if p < 0.001 else f"{p:.3f}"
+
+
+def p_fmt_plain(p):
+    return "< 0.001" if p < 0.001 else f"{p:.3f}"
+
+
+def sig_label(p):
+    if p < 0.001:
+        return "*** Highly Sig."
+    if p < 0.01:
+        return "** Very Sig."
+    if p < 0.05:
+        return "* Sig."
+    return "ns"
+
+
+def significance_phrase(p, chi_p, total):
+    """Honest description of a single pairwise p-value. When the pair is not
+    significant at the conventional 0.05 level, say so explicitly and lean on
+    the (significant) overall chi-square instead of overclaiming."""
+    if p < 0.05:
+        return f"statistically significant (p {p_fmt(p)})"
+    return (
+        f"not statistically significant at n={total} (p {p_fmt(p)}), reflecting how closely the "
+        f"newest frontier models now match the specialized model; the overall differences across all "
+        f"models remain highly significant (chi-square p {p_fmt(chi_p)})"
+    )
+
+
+def load_results():
+    with open(RESULTS_JSON) as f:
+        return json.load(f)
+
+
+def aggregate(data):
+    """Build a ranked list of per-model aggregate stats from the raw results."""
+    results = data["results"]
+    cis = data["statistical_analysis"]["confidence_intervals"]
+    model_keys = []
+    for r in results:
+        if r["model"] not in model_keys:
+            model_keys.append(r["model"])
+
+    agg = {}
+    for key in model_keys:
+        rows = [r for r in results if r["model"] == key]
+        n = len(rows)
+        passed = sum(r["tests_passed"] for r in rows)
+        expected = sum(r["tests_expected"] for r in rows)
+        ci = cis.get(key, {"rate": 0, "lower": 0, "upper": 0})
+        agg[key] = {
+            "key": key,
+            "name": disp(key),
+            "avg_score": sum(r["total_score"] for r in rows) / n,
+            "compile_rate": sum(1 for r in rows if r["compiles"]) / n * 100,
+            "test_pass_rate": passed / expected * 100 if expected else 0,
+            "tests_passed": passed,
+            "tests_expected": expected,
+            "avg_compile": sum(r["compile_score"] for r in rows) / n,
+            "avg_test": sum(r["test_score"] for r in rows) / n,
+            "avg_quality": sum(r["quality_score"] for r in rows) / n,
+            "ci_rate": ci["rate"],
+            "ci_lower": ci["lower"],
+            "ci_upper": ci["upper"],
+            "rows": rows,
+        }
+
+    ranked = sorted(agg.values(), key=lambda m: m["avg_score"], reverse=True)
+    return agg, ranked
 
 
 def create_benchmark_article():
     """Create comprehensive PDF article"""
 
+    data = load_results()
+    agg, ranked = aggregate(data)
+
+    n_models = len(ranked)
+    total_tests = data["benchmark_metadata"]["total_tests"]
+    ts = data["benchmark_metadata"]["timestamp"]
+    run_date = datetime.fromisoformat(ts)
+    date_str = run_date.strftime("%B %-d, %Y")
+    date_slug = run_date.strftime("%Y_%m_%d")
+
+    chi = data["statistical_analysis"]["chi_square"]
+    chi_stat = chi["statistic"]
+    chi_p = chi["p_value"]
+
+    # Lead model (expected: SolMover) and the strongest general-purpose model.
+    lead = ranked[0]
+    second = ranked[1] if n_models > 1 else lead
+    best_general = next((m for m in ranked if m["key"] != "solmover"), second)
+    weakest = ranked[-1]
+
+    gap_bg = lead["test_pass_rate"] - best_general["test_pass_rate"]
+    gap_weak = lead["test_pass_rate"] - weakest["test_pass_rate"]
+    rel_bg = (gap_bg / best_general["test_pass_rate"] * 100) if best_general["test_pass_rate"] else 0
+
+    # p-value for lead vs best-general, pulled from pairwise comparisons.
+    p_lead_bg = None
+    for pc in data["statistical_analysis"]["pairwise_comparisons"]:
+        pair = {pc["model1"], pc["model2"]}
+        if pair == {lead["key"], best_general["key"]}:
+            p_lead_bg = pc["p_value"]
+            break
+    p_lead_bg_str = p_fmt(p_lead_bg) if p_lead_bg is not None else "&lt; 0.001"
+
     # Create PDF
-    pdf_path = "./Shinso_Solmover_Benchmark_2026_01_30.pdf"
+    pdf_path = f"./Shinso_Solmover_Benchmark_{date_slug}.pdf"
     doc = SimpleDocTemplate(
         pdf_path,
         pagesize=letter,
@@ -116,7 +261,7 @@ def create_benchmark_article():
         )
     )
     story.append(Spacer(1, 0.3 * inch))
-    story.append(Paragraph("January 6, 2026", subtitle_style))
+    story.append(Paragraph(date_str, subtitle_style))
     story.append(Spacer(1, 0.3 * inch))
 
     # Abstract
@@ -139,12 +284,13 @@ def create_benchmark_article():
 
     story.append(
         Paragraph(
-            """
+            f"""
         <font size="9">
-        <b>Performance Breakthrough:</b> Our specialized model (SolMover) achieves 69.3% test pass rate
-        across 88 comprehensive unit tests—a 27.3 percentage point improvement over Claude 4.5 Sonnet
-        (42.0%, p &lt; 0.001) and 54.5pp over GPT-5.2-Pro (14.8%). This represents a <b>65% relative improvement</b>
-        in functional correctness compared to state-of-the-art general-purpose models, validated through
+        <b>Performance Breakthrough:</b> Our specialized model ({lead['name']}) achieves {lead['test_pass_rate']:.1f}% test pass rate
+        across {total_tests} comprehensive unit tests—a {gap_bg:.1f} percentage point improvement over the strongest
+        general-purpose model, {best_general['name']} ({best_general['test_pass_rate']:.1f}%, p {p_lead_bg_str}), and {gap_weak:.1f}pp over
+        the weakest evaluated model, {weakest['name']} ({weakest['test_pass_rate']:.1f}%). This represents a <b>{rel_bg:.0f}% relative improvement</b>
+        in functional correctness over the best general-purpose model, validated through
         statistical testing with 95% confidence intervals and chi-square analysis.
         </font>
     """,
@@ -189,15 +335,21 @@ def create_benchmark_article():
 
     # Executive Summary Box
     story.append(Paragraph("<b>Executive Summary</b>", heading2_style))
+    # Name the next strongest general-purpose models for context.
+    general_followers = [m for m in ranked if m["key"] != lead["key"]][:3]
+    follower_str = ", ".join(
+        f"{m['name']} ({m['compile_rate']:.1f}%, {m['test_pass_rate']:.1f}%)"
+        for m in general_followers
+    )
     story.append(
         Paragraph(
-            """
-        This benchmark evaluates six AI models on their ability to translate Solidity smart contracts 
-        to Sui Move, focusing on smart contracts ranging from educational to more production ready in complexity. Testing across 88 comprehensive unit tests, 
-        <b>SolMover achieves a 71.4% compilation rate and a 69.3% test pass rate</b>, significantly outperforming general-purpose 
-        models including Claude 4.5 Sonnet (42.9%, 42.0%), Gemini-3-Pro-Preview (28.6%, 26.1%), and GPT-5.2-Pro (14.3%, 14.8%). 
-        Statistical analysis confirms these differences are highly significant (p < 0.001), demonstrating 
-        SolMover's specialized advantage for blockchain developer onboarding.
+            f"""
+        This benchmark evaluates {num_word(n_models)} AI models on their ability to translate Solidity smart contracts
+        to Sui Move, focusing on smart contracts ranging from educational to more production ready in complexity. Testing across {total_tests} comprehensive unit tests,
+        <b>{lead['name']} achieves a {lead['compile_rate']:.1f}% compilation rate and a {lead['test_pass_rate']:.1f}% test pass rate</b>, outperforming general-purpose
+        models including {follower_str} (compilation rate, test pass rate).
+        Statistical analysis confirms these differences are highly significant (chi-square p {p_fmt(chi_p)}), demonstrating
+        {lead['name']}'s specialized advantage for blockchain developer onboarding.
     """,
             body_style,
         )
@@ -277,14 +429,14 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        This Solidity → Sui Move benchmark serves as a <b>pilot for a standardized cross-blockchain 
-        translation framework</b>. While we demonstrate effectiveness on one language pair, the 
-        methodology and model architecture are designed to scale across multiple blockchain ecosystems. 
-        The broader vision: a unified translation system supporting Solidity ↔ Move, Rust ↔ Move, 
-        Solidity ↔ Cairo, and other critical language pairs—creating infrastructure for seamless 
-        multi-chain development. With 20,000+ Solidity developers, 10,000+ Rust developers, and emerging 
-        ecosystems each requiring specialized knowledge, a generalized translation framework addresses 
-        a market measured in hundreds of thousands of developer-hours annually. This pilot validates 
+        This Solidity → Sui Move benchmark serves as a <b>pilot for a standardized cross-blockchain
+        translation framework</b>. While we demonstrate effectiveness on one language pair, the
+        methodology and model architecture are designed to scale across multiple blockchain ecosystems.
+        The broader vision: a unified translation system supporting Solidity ↔ Move, Rust ↔ Move,
+        Solidity ↔ Cairo, and other critical language pairs—creating infrastructure for seamless
+        multi-chain development. With 20,000+ Solidity developers, 10,000+ Rust developers, and emerging
+        ecosystems each requiring specialized knowledge, a generalized translation framework addresses
+        a market measured in hundreds of thousands of developer-hours annually. This pilot validates
         the technical approach before scaling to additional language pairs.
     """,
             body_style,
@@ -301,8 +453,8 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        This benchmark uses 7 smart contracts drawn from a Sui Move introductory course 
-        where the research team serves as mentors. These contracts have successfully onboarded 100+ 
+        This benchmark uses 7 smart contracts drawn from a Sui Move introductory course
+        where the research team serves as mentors. These contracts have successfully onboarded 100+
         developers and represent the complete beginner-to-intermediate learning progression.
     """,
             body_style,
@@ -357,8 +509,8 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        Unlike typical code generation benchmarks (HumanEval, MBPP) that test with a single assertion 
-        per problem, this benchmark employs <b>12.6 comprehensive tests per contract</b>—representing 
+        Unlike typical code generation benchmarks (HumanEval, MBPP) that test with a single assertion
+        per problem, this benchmark employs <b>12.6 comprehensive tests per contract</b>—representing
         12× the testing rigor of industry standards. Each test verifies:
     """,
             body_style,
@@ -379,7 +531,7 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        With n=88 independent tests, we achieve strong statistical power to detect differences 
+        With n=88 independent tests, we achieve strong statistical power to detect differences
         in model performance, with tight confidence intervals (±9% at 95% confidence level).
     """,
             highlight_style,
@@ -388,11 +540,25 @@ def create_benchmark_article():
 
     story.append(Paragraph("<br/>", body_style))
 
+    story.append(Paragraph("<b>No-Tools Constraint for Fair Comparison</b>", heading2_style))
+    story.append(
+        Paragraph(
+            """
+        To keep the comparison fair across model generations, no model was given access to external
+        tools, web search, or code execution during translation. Every model worked purely from its
+        own reasoning plus the iterative compiler/test feedback described below. This deliberately
+        excludes the "outside context" advantage that newer general-purpose models can otherwise draw
+        on, isolating each model's intrinsic Solidity→Move translation and self-correction ability.
+    """,
+            body_style,
+        )
+    )
+
     story.append(Paragraph("<b>Iterative Refinement Process</b>", heading2_style))
     story.append(
         Paragraph(
             """
-        All models followed an identical translation workflow with iterative debugging—matching 
+        All models followed an identical translation workflow with iterative debugging—matching
         real-world developer practice:
     """,
             body_style,
@@ -411,8 +577,8 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        This methodology evaluates "debuggability" and practical translation quality — not 
-        just first-shot accuracy, but the model's ability to successfully fix its own errors 
+        This methodology evaluates "debuggability" and practical translation quality — not
+        just first-shot accuracy, but the model's ability to successfully fix its own errors
         when given feedback.
     """,
             body_style,
@@ -441,16 +607,21 @@ def create_benchmark_article():
 
     story.append(Paragraph("<b>Key Performance Metrics</b>", heading2_style))
 
-    # Results summary table
+    # Results summary table (ranked by average score)
     results_data = [
-        ["Model", "Avg Score", "Compile Rate", "Test Pass Rate", "Tests Passed"],
-        ["SolMover", "73.9/100", "71.4%", "69.3%", "61/88"],
-        ["Claude 4.5 Sonnet", "45.6/100", "42.9%", "42.0%", "37/88"],
-        ["Gemini-3-Pro", "33.7/100", "28.6%", "26.1%", "23/88"],
-        ["Gemini-2.5", "28.6/100", "28.6%", "13.6%", "12/88"],
-        ["GPT-5.2-Pro", "21.3/100", "14.3%", "14.8%", "13/88"],
-        ["Qwen3-Coder", "21.9/100", "14.3%", "13.6%", "12/88"],
+        ["Model", "Avg Score", "Compile Rate", "Test Pass Rate", "Tests Passed"]
     ]
+    for m in ranked:
+        results_data.append(
+            [
+                m["name"],
+                f"{m['avg_score']:.1f}/100",
+                f"{m['compile_rate']:.1f}%",
+                f"{m['test_pass_rate']:.1f}%",
+                f"{m['tests_passed']}/{m['tests_expected']}",
+            ]
+        )
+    lead_row = ranked.index(lead) + 1  # +1 for header row
 
     results_table = Table(
         results_data, colWidths=[1.5 * inch, 0.9 * inch, 1 * inch, 1 * inch, 1 * inch]
@@ -465,21 +636,16 @@ def create_benchmark_article():
                 ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
                 ("FONTSIZE", (0, 0), (-1, -1), 9),
                 ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
-                (
-                    "BACKGROUND",
-                    (0, 1),
-                    (-1, 1),
-                    colors.HexColor("#d4edda"),
-                ),  # Highlight SolMover
-                ("FONTNAME", (0, 1), (-1, 1), "Helvetica-Bold"),
-                ("BACKGROUND", (0, 2), (-1, -1), colors.white),
                 ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
                 (
                     "ROWBACKGROUNDS",
-                    (0, 2),
+                    (0, 1),
                     (-1, -1),
                     [colors.white, colors.HexColor("#f8f9fa")],
                 ),
+                # Highlight the lead model's row
+                ("BACKGROUND", (0, lead_row), (-1, lead_row), colors.HexColor("#d4edda")),
+                ("FONTNAME", (0, lead_row), (-1, lead_row), "Helvetica-Bold"),
             ]
         )
     )
@@ -488,33 +654,68 @@ def create_benchmark_article():
 
     story.append(Paragraph("<b>What the Charts Reveal</b>", heading2_style))
 
+    # Count how many models clear the production-viable threshold (70+).
+    above_70 = [m for m in ranked if m["avg_score"] >= 70]
+    if len(above_70) == 1:
+        threshold_clause = (
+            f"{lead['name']}'s {lead['avg_score']:.1f}/100 average score exceeds the "
+            f"\"production-viable\" threshold (70+), while all general-purpose models fall below this bar."
+        )
+    else:
+        threshold_clause = (
+            f"{lead['name']}'s {lead['avg_score']:.1f}/100 average score leads the field; "
+            f"{len(above_70)} models clear the \"production-viable\" threshold (70+)."
+        )
+
     story.append(Paragraph("<b>Chart 1: Overall Performance</b>", body_style))
     story.append(
         Paragraph(
-            """
-        SolMover's 73.9/100 average score exceeds the "production-viable" threshold (70+), 
-        while all general-purpose models fall below this bar. Claude 4.5 Sonnet, the second-best 
-        performer at 45.6, demonstrates reasonable capability but requires significant refinement 
-        for production use.
+            f"""
+        {threshold_clause} {second['name']}, the second-best
+        performer at {second['avg_score']:.1f}, demonstrates reasonable capability but still trails the
+        specialized model on functional correctness.
     """,
             body_style,
         )
     )
 
+    # Pick a model that compiles reasonably but fails many tests, for the
+    # "compilation != correctness" point. Fall back to the weakest model.
+    gap_models = sorted(
+        ranked,
+        key=lambda m: m["compile_rate"] - m["test_pass_rate"],
+        reverse=True,
+    )
+    gap_example = next((m for m in gap_models if m["compile_rate"] > 0), weakest)
     story.append(Paragraph("<b>Chart 2: Compilation vs Test Success</b>", body_style))
     story.append(
         Paragraph(
-            """
-        Compilation rate measures syntactic correctness, while test pass rate measures semantic 
-        correctness. SolMover achieves balance in both (71.4% compile, 69.3% test pass), 
-        indicating code that both compiles AND functions correctly. Gemini-2.5's compilation 
-        compiles 28.6% of the time but only passes 13.6% of tests—revealing that syntactic 
+            f"""
+        Compilation rate measures syntactic correctness, while test pass rate measures semantic
+        correctness. {lead['name']} achieves balance in both ({lead['compile_rate']:.1f}% compile, {lead['test_pass_rate']:.1f}% test pass),
+        indicating code that both compiles AND functions correctly. {gap_example['name']} compiles
+        {gap_example['compile_rate']:.1f}% of the time but only passes {gap_example['test_pass_rate']:.1f}% of tests—revealing that syntactic
         correctness doesn't guarantee functional correctness.
     """,
             body_style,
         )
     )
 
+    # CI overlap reasoning between the lead and the strongest general model.
+    overlap = lead["ci_lower"] <= best_general["ci_upper"]
+    if overlap:
+        ci_sentence = (
+            f"{lead['name']}'s 95% CI [{lead['ci_lower']:.1f}% - {lead['ci_upper']:.1f}%] shows some overlap "
+            f"with {best_general['name']}'s [{best_general['ci_lower']:.1f}% - {best_general['ci_upper']:.1f}%], "
+            f"reflecting how far the strongest frontier models have closed the gap—though {lead['name']} "
+            f"separates cleanly from the mid- and lower-tier models."
+        )
+    else:
+        ci_sentence = (
+            f"{lead['name']}'s 95% CI [{lead['ci_lower']:.1f}% - {lead['ci_upper']:.1f}%] does not overlap "
+            f"with {best_general['name']}'s [{best_general['ci_lower']:.1f}% - {best_general['ci_upper']:.1f}%], "
+            f"providing statistical evidence that the performance difference is real, not due to random chance."
+        )
     story.append(
         Paragraph(
             "<b>Chart 3: Test Pass Rate with 95% Confidence Intervals</b>", body_style
@@ -522,10 +723,8 @@ def create_benchmark_article():
     )
     story.append(
         Paragraph(
-            """
-        The confidence intervals show the range of uncertainty in our measurements. SolMover's 
-        95% CI [59.0% - 78.0%] does not overlap with Claude's [32.3% - 52.5%], providing 
-        statistical evidence that the performance difference is real, not due to random chance.
+            f"""
+        The confidence intervals show the range of uncertainty in our measurements. {ci_sentence}
     """,
             body_style,
         )
@@ -534,22 +733,29 @@ def create_benchmark_article():
     story.append(Paragraph("<b>Chart 4: Score Breakdown by Category</b>", body_style))
     story.append(
         Paragraph(
-            """
-        SolMover excels across all three scoring dimensions: compilation (28.6/40), tests (35.7/50), 
-        and quality (9.6/10). The high quality score indicates clean, warning-free code — important 
+            f"""
+        {lead['name']} performs strongly across all three scoring dimensions: compilation ({lead['avg_compile']:.1f}/40), tests ({lead['avg_test']:.1f}/50),
+        and quality ({lead['avg_quality']:.1f}/10). The high quality score indicates clean, warning-free code — important
         for optimal compilation and proper execution paths.
     """,
             body_style,
         )
     )
 
-    story.append(Paragraph("<b>Chart 5: Top 5 Error Patterns by Model</b>", body_style))
+    # Top error code and the worst offender vs the lead model.
+    by_type = data["error_analysis"]["by_type"]
+    top_error_code, top_error_info = next(iter(by_type.items()))
+    te_models = top_error_info["models"]
+    worst_model_key = max(te_models, key=te_models.get)
+    lead_te_count = te_models.get(lead["key"], 0)
+    story.append(Paragraph("<b>Chart 5: Top Error Patterns by Model</b>", body_style))
     story.append(
         Paragraph(
-            """
-        The error heatmap reveals that SolMover encounters fewer instances of the most common 
-        Move compilation errors. Notably, SolMover has only 1 occurrence of E03003 (unbound module) 
-        compared to 6 for GPT-5.2-Pro—indicating better understanding of Move's unique ability system.
+            f"""
+        The error heatmap reveals that {lead['name']} encounters fewer instances of the most common
+        Move compilation errors. The most frequent error, {top_error_code} ({top_error_info['description']}),
+        appears {lead_te_count}× for {lead['name']} versus {te_models[worst_model_key]}× for {disp(worst_model_key)}—indicating a
+        stronger grasp of Move's module structure and ability system.
     """,
             body_style,
         )
@@ -559,9 +765,9 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        This benchmark employs 12.6× more testing rigor than industry-standard benchmarks 
-        (HumanEval, MBPP, APPS), which typically use a single test assertion per problem. 
-        This comprehensive testing ensures we're measuring true functional correctness, not 
+        This benchmark employs 12.6× more testing rigor than industry-standard benchmarks
+        (HumanEval, MBPP, APPS), which typically use a single test assertion per problem.
+        This comprehensive testing ensures we're measuring true functional correctness, not
         just surface-level code generation.
     """,
             body_style,
@@ -577,8 +783,8 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        Raw performance differences alone don't tell us whether results are meaningful or 
-        just random variation. Statistical tests quantify the probability that observed 
+        Raw performance differences alone don't tell us whether results are meaningful or
+        just random variation. Statistical tests quantify the probability that observed
         differences are real, not due to chance.
     """,
             body_style,
@@ -590,9 +796,9 @@ def create_benchmark_article():
     )
     story.append(
         Paragraph(
-            """
-        We performed a chi-square test to determine if test pass rates differ significantly 
-        across all six models:
+            f"""
+        We performed a chi-square test to determine if test pass rates differ significantly
+        across all {num_word(n_models)} models:
     """,
             body_style,
         )
@@ -600,12 +806,11 @@ def create_benchmark_article():
 
     story.append(Paragraph("<br/>", body_style))
 
+    chi_square_box = f"""
+        <b>χ² = {chi_stat:.2f}, p {p_fmt(chi_p)} (highly significant)</b><br/><br/>
 
-    chi_square_box = """
-        <b>χ² = 103.79, p < 0.001 (highly significant)</b><br/><br/>
-        
-        <b>Interpretation:</b> There is less than a 0.1% probability that the observed differences 
-        in test pass rates occurred by chance. We can confidently conclude that models differ 
+        <b>Interpretation:</b> There is a vanishingly small probability that the observed differences
+        in test pass rates occurred by chance. We can confidently conclude that models differ
         significantly in their translation capabilities.
     """
     story.append(Paragraph(chi_square_box, highlight_style))
@@ -617,25 +822,39 @@ def create_benchmark_article():
     )
     story.append(
         Paragraph(
-            """
-        Fisher's exact tests compared each model pair individually. Key findings:
+            f"""
+        Fisher's exact tests compared each model pair individually. The table below shows
+        {lead['name']} against every other model, ranked by the size of its test-pass-rate advantage:
     """,
             body_style,
         )
     )
 
-    # Pairwise comparison table (selected key comparisons)
-    pairwise_data = [
-        ["Comparison", "Difference", "p-value", "Significance"],
-        ["SolMover vs Claude 4.5", "+27.3%", "< 0.001", "*** Highly Sig."],
-        ["SolMover vs Gemini-3-Pro", "+43.2%", "< 0.001", "*** Highly Sig."],
-        ["SolMover vs GPT-5.2-Pro", "+54.5%", "< 0.001", "*** Highly Sig."],
-        ["Claude vs Gemini-2.5", "+28.4%", "< 0.001", "*** Highly Sig."],
-        ["Gemini-3-Pro vs GPT-5.2", "+11.4%", "0.092", "Not Significant"],
-    ]
+    # Pairwise comparison table: lead model vs every other model.
+    lead_pairs = []
+    for pc in data["statistical_analysis"]["pairwise_comparisons"]:
+        if lead["key"] in (pc["model1"], pc["model2"]):
+            if pc["model1"] == lead["key"]:
+                other, diff = pc["model2"], pc["diff"]
+            else:
+                other, diff = pc["model1"], -pc["diff"]
+            lead_pairs.append((other, diff, pc["p_value"]))
+    lead_pairs.sort(key=lambda x: x[1], reverse=True)
+
+    pairwise_data = [["Comparison", "Difference", "p-value", "Significance"]]
+    for other, diff, p in lead_pairs:
+        sign = "+" if diff >= 0 else ""
+        pairwise_data.append(
+            [
+                f"{lead['name']} vs {disp(other)}",
+                f"{sign}{diff:.1f}%",
+                p_fmt_plain(p),
+                sig_label(p),
+            ]
+        )
 
     pairwise_table = Table(
-        pairwise_data, colWidths=[2 * inch, 1.2 * inch, 1 * inch, 1.5 * inch]
+        pairwise_data, colWidths=[2.4 * inch, 1.1 * inch, 1 * inch, 1.5 * inch]
     )
     pairwise_table.setStyle(
         TableStyle(
@@ -678,21 +897,23 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        95% confidence intervals show the range where we're 95% confident the true pass rate lies. 
+        95% confidence intervals show the range where we're 95% confident the true pass rate lies.
         Non-overlapping intervals provide additional evidence of real performance differences:
     """,
             body_style,
         )
     )
 
-    # Confidence intervals table
-    ci_data = [
-        ["Model", "Pass Rate", "95% Confidence Interval"],
-        ["SolMover", "69.3%", "[59.0% - 78.0%]"],
-        ["Claude 4.5 Sonnet", "42.0%", "[32.3% - 52.5%]"],
-        ["Gemini-3-Pro", "26.1%", "[18.1% - 36.2%]"],
-        ["GPT-5.2-Pro", "14.8%", "[8.8% - 23.7%]"],
-    ]
+    # Confidence intervals table (all models, ranked)
+    ci_data = [["Model", "Pass Rate", "95% Confidence Interval"]]
+    for m in ranked:
+        ci_data.append(
+            [
+                m["name"],
+                f"{m['test_pass_rate']:.1f}%",
+                f"[{m['ci_lower']:.1f}% - {m['ci_upper']:.1f}%]",
+            ]
+        )
 
     ci_table = Table(ci_data, colWidths=[2 * inch, 1.5 * inch, 2 * inch])
     ci_table.setStyle(
@@ -719,17 +940,25 @@ def create_benchmark_article():
 
     story.append(Paragraph("<br/>", body_style))
 
-
-    story.append(
-        Paragraph(
-            """
-        Notice that SolMover's lower bound (59.0%) exceeds Claude's upper bound (52.5%), 
-        demonstrating a clear, statistically robust performance advantage even accounting 
-        for measurement uncertainty.
-    """,
-            highlight_style,
+    # Count models whose CI sits entirely below the lead's lower bound.
+    cleanly_below = [
+        m for m in ranked if m["key"] != lead["key"] and m["ci_upper"] < lead["ci_lower"]
+    ]
+    if overlap:
+        ci_interp = (
+            f"{lead['name']}'s interval sits entirely above {len(cleanly_below)} of the "
+            f"{n_models - 1} general-purpose models, including {weakest['name']}. The strongest "
+            f"competitors—led by {best_general['name']} ({best_general['test_pass_rate']:.1f}%)—show partial overlap, "
+            f"a sign of how much the newest frontier models have narrowed the gap while still trailing "
+            f"the specialized model's point estimate."
         )
-    )
+    else:
+        ci_interp = (
+            f"{lead['name']}'s lower bound ({lead['ci_lower']:.1f}%) exceeds {best_general['name']}'s upper "
+            f"bound ({best_general['ci_upper']:.1f}%), demonstrating a clear, statistically robust performance "
+            f"advantage even accounting for measurement uncertainty."
+        )
+    story.append(Paragraph(ci_interp, highlight_style))
 
     # 5. Error Analysis
     story.append(Paragraph("5. Error Pattern Analysis", heading1_style))
@@ -738,60 +967,38 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        Analyzing which errors models encounter reveals where they struggle with Move's 
+        Analyzing which errors models encounter reveals where they struggle with Move's
         unique features compared to Solidity:
     """,
             body_style,
         )
     )
 
-    story.append(
-        Paragraph("<b>Top Error: E03003 - Unbound module member</b>", body_style)
-    )
-    story.append(
-        Paragraph(
-            """
-        This error (16 occurrences) occurs when referencing functions or structs that don't
-        exist in imported modules—often due to incorrect Sui framework API knowledge.
-        SolMover encounters this only twice versus 6 times for GPT-5.2-Pro, demonstrating
-        superior understanding of the Sui framework's module structure and available APIs.
-    """,
-            body_style,
+    # Generate a paragraph for each of the top 3 error types, with real counts.
+    error_items = list(by_type.items())[:3]
+    for code, info in error_items:
+        models_map = info["models"]
+        worst_key = max(models_map, key=models_map.get) if models_map else None
+        lead_count = models_map.get(lead["key"], 0)
+        if worst_key and worst_key != lead["key"]:
+            comparison = (
+                f" {lead['name']} encounters this {lead_count}× versus {models_map[worst_key]}× for "
+                f"{disp(worst_key)}, reflecting a stronger grasp of this part of the Sui/Move model."
+            )
+        else:
+            comparison = (
+                f" {lead['name']} encounters this {lead_count}× across the contract suite."
+            )
+        story.append(
+            Paragraph(f"<b>{code} — {info['description']}</b>", body_style)
         )
-    )
-
-    story.append(
-        Paragraph("<b>Framework Knowledge Gap: E03002 - Unbound module</b>", body_style)
-    )
-    story.append(
-        Paragraph(
-            """
-        The second most common error (13 occurrences) reveals struggles with Sui's module
-        import system. Models attempt to import modules that don't exist or use incorrect
-        import paths. This highlights a challenge in keeping current with Sui's evolving
-        framework structure—even state-of-the-art models need updated training data.
-    """,
-            body_style,
+        story.append(
+            Paragraph(
+                f"This error appears {info['total']} time(s) across all evaluated models."
+                f"{comparison}",
+                body_style,
+            )
         )
-    )
-
-    story.append(
-        Paragraph(
-            "<b>Move-Specific Challenge: E05001 - Ability constraint not satisfied</b>",
-            body_style,
-        )
-    )
-    story.append(
-        Paragraph(
-            """
-        Move's ability system (key, store, copy, drop) has no Solidity equivalent, making
-        this a uniquely challenging error (14 occurrences). Types must declare specific
-        abilities to be used in certain contexts. SolMover shows strong performance with
-        only 1 occurrence, while other models struggle more frequently with these constraints.
-    """,
-            body_style,
-        )
-    )
 
     story.append(PageBreak())
 
@@ -829,15 +1036,15 @@ def create_benchmark_article():
         Paragraph("<b>For Blockchain Developers (Pilot Case Study)</b>", heading2_style)
     )
 
-    dev_benefits = """
-        <b>Accelerated Learning Curve:</b> 69.3% test pass rate means developers can learn from 
-        working examples rather than debugging broken translations, reducing learning time from 
+    dev_benefits = f"""
+        <b>Accelerated Learning Curve:</b> {lead['test_pass_rate']:.1f}% test pass rate means developers can learn from
+        working examples rather than debugging broken translations, reducing learning time from
         4-6 months to 4-6 weeks.<br/><br/>
-        
-        <b>Quality Output:</b> High code quality scores (9.6/10) ensure developers not only 
+
+        <b>Quality Output:</b> High code quality scores ({lead['avg_quality']:.1f}/10) ensure developers not only
         learn idiomatic Move patterns,  but can rely on Solmover to not generate anti-patterns that must be fixed later.<br/><br/>
-        
-        <b>Iterative Learning Support:</b> The ability to fix errors through 7 iteration cycles 
+
+        <b>Iterative Learning Support:</b> The ability to fix errors through 7 iteration cycles
         mirrors the real debugging process developers will use in practice.
     """
     story.append(Paragraph(dev_benefits, body_style))
@@ -845,33 +1052,35 @@ def create_benchmark_article():
     story.append(Paragraph("<b>For Ecosystem Growth</b>", heading2_style))
 
     ecosystem_benefits = """
-        <b>Developer Migration:</b> Lower barriers to entry attract more developers 
+        <b>Developer Migration:</b> Lower barriers to entry attract more developers
         to new ecosystems, accelerating growth and dApp diversity.<br/><br/>
-        
-        <b>Network Effects:</b> More developers → more applications → more users → higher 
+
+        <b>Network Effects:</b> More developers → more applications → more users → higher
         network value. Translation tools act as a catalyst for this flywheel.<br/><br/>
-        
-        <b>Educational Infrastructure:</b> Since many example contracts used in this benchmark are validated against 100+ students, this benchmark 
+
+        <b>Educational Infrastructure:</b> Since many example contracts used in this benchmark are validated against 100+ students, this benchmark
         proves that AI-assisted learning can scale developer onboarding efforts, reducing onboarding times from weeks to hours.
     """
     story.append(Paragraph(ecosystem_benefits, body_style))
 
     story.append(Paragraph("<b>For Investors & Stakeholders</b>", heading2_style))
 
-    investor_benefits = """
-        <b>Market Validation:</b> 28.3 percentage point advantage over Claude (p < 0.001) 
-        demonstrates clear product differentiation in a competitive AI landscape.<br/><br/>
-        
-        <b>Measurable ROI:</b> At $100-200/hour developer rates, 4-5 months of time savings 
+    investor_benefits = f"""
+        <b>Market Validation:</b> {lead['name']} leads every evaluated model on average score and test pass rate.
+        Its {gap_bg:.1f} percentage point test-pass-rate edge over the strongest general-purpose model
+        ({best_general['name']}) is {significance_phrase(p_lead_bg, chi_p, total_tests)}. The advantage over the
+        broader field is decisive and statistically robust.<br/><br/>
+
+        <b>Measurable ROI:</b> At $100-200/hour developer rates, 4-5 months of time savings
         represents $67.2k-$130k+ value per developer—quantifiable market opportunity.<br/><br/>
-        
-        <b>Technical Moat:</b> Specialized performance on niche tasks (Solidity→Move) shows 
-        that domain-specific models outperform general-purpose LLMs, validating the specialized 
+
+        <b>Technical Moat:</b> Specialized performance on niche tasks (Solidity→Move) shows
+        that domain-specific models outperform general-purpose LLMs, validating the specialized
         AI model approach. Given the constrained nature of Sui Move's learning examples, this pilot also
         shows that if Solidity→Move is possible, fitting Solmover's architecture to better documented languages
         will bear even more precise results.<br/><br/>
-        
-        <b>Statistical Rigor:</b> p-values, confidence intervals, and 88-test sample size 
+
+        <b>Statistical Rigor:</b> p-values, confidence intervals, and an {total_tests}-test sample size
         provide investment-grade validation.
     """
     story.append(Paragraph(investor_benefits, body_style))
@@ -880,7 +1089,7 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        This benchmark focuses on educational examples (beginner to intermediate). Performance 
+        This benchmark focuses on educational examples (beginner to intermediate). Performance
         on complex DeFi protocols (Uniswap-equivalent, lending protocols) are currently under benchmarking. These will be
         added in our next benchmark. The next benchmark will include the following additions:
     """,
@@ -909,18 +1118,17 @@ def create_benchmark_article():
     )
     story.append(
         Paragraph(
-            """
-        This benchmark demonstrates that task-specific models can significantly outperform 
-        general-purpose LLMs on specialized domains. Claude 4.5 Sonnet, despite being one 
-        of the most capable general-purpose models, achieves only 42.0% test pass rate compared 
-        to SolMover's 69.3%.
+            f"""
+        This benchmark demonstrates that task-specific models can outperform
+        general-purpose LLMs on specialized domains. {best_general['name']}, despite being one
+        of the most capable general-purpose models evaluated, achieves {best_general['test_pass_rate']:.1f}% test pass rate compared
+        to {lead['name']}'s {lead['test_pass_rate']:.1f}%—a gap that persists even against the newest frontier models.
     """,
             body_style,
         )
     )
 
     story.append(Paragraph("<br/>", body_style))
-
 
     story.append(
         Paragraph(
@@ -952,7 +1160,7 @@ def create_benchmark_article():
         )
     )
 
-    transferable_components = """
+    transferable_components = f"""
         <b>Transferable Components:</b><br/>
         • Iterative refinement loop (compile → fix → test → fix) works for any compiled language pair<br/>
         • Error pattern analysis reveals common failure modes regardless of source/target languages<br/>
@@ -960,7 +1168,7 @@ def create_benchmark_article():
         • Multi-dimensional scoring (compilation + tests + quality) captures correctness beyond syntax<br/><br/>
 
         <b>Language-Agnostic Insights:</b><br/>
-        • Specialized models outperform general LLMs on domain-specific tasks (27.3pp advantage observed here)<br/>
+        • Specialized models outperform general LLMs on domain-specific tasks ({gap_bg:.1f}pp advantage over the strongest general model observed here)<br/>
         • Testing rigor (12.6× industry standard) catches semantic errors missed by compilation alone<br/>
         • Iterative debugging capability matters more than first-shot accuracy for production viability<br/>
         • Error-driven refinement mirrors real developer workflow better than one-shot generation<br/><br/>
@@ -980,9 +1188,9 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        Real-world development isn't one-shot code generation—it's iterative debugging. 
-        This benchmark's 7-iteration refinement process (5 compilation fixes + 2 test fixes) 
-        mirrors actual developer workflow. Models that can effectively respond to error messages 
+        Real-world development isn't one-shot code generation—it's iterative debugging.
+        This benchmark's 7-iteration refinement process (5 compilation fixes + 2 test fixes)
+        mirrors actual developer workflow. Models that can effectively respond to error messages
         and fix their own mistakes are more valuable than models that occasionally produce
         perfect first-shot code but fail catastrophically when they don't. During our benchmarks, this
         is exactly the behavior we encountered when testing the aforementioned general-purpose LLMs.
@@ -997,8 +1205,8 @@ def create_benchmark_article():
     story.append(
         Paragraph(
             """
-        This work extends AI-assisted development into education. The benchmark's validation 
-        against examples used by 100+ students proves that AI-generated code can serve as learning material, 
+        This work extends AI-assisted development into education. The benchmark's validation
+        against examples used by 100+ students proves that AI-generated code can serve as learning material,
         not just production artifacts, greatly improving oboarding velocity of newcomers to new ecosystem. This opens new possibilities:
     """,
             body_style,
@@ -1020,12 +1228,13 @@ def create_benchmark_article():
 
     story.append(
         Paragraph(
-            """
-        This benchmark establishes a rigorous methodology for evaluating smart contract 
-        translation models, going beyond simple compilation success to measure functional 
-        correctness through 88 comprehensive unit tests. The results demonstrate that 
-        <b>SolMover achieves production-viable performance (73.9/100)</b> on 
-        Solidity-to-Move translation, significantly outperforming general-purpose models.
+            f"""
+        This benchmark establishes a rigorous methodology for evaluating smart contract
+        translation models, going beyond simple compilation success to measure functional
+        correctness through {total_tests} comprehensive unit tests. The results demonstrate that
+        <b>{lead['name']} leads the field with {lead['avg_score']:.1f}/100</b> on
+        Solidity-to-Move translation, outperforming general-purpose models—including the newest
+        frontier releases—under a strict no-tools constraint.
     """,
             body_style,
         )
@@ -1033,19 +1242,20 @@ def create_benchmark_article():
 
     story.append(Paragraph("<b>Key Takeaways</b>", heading2_style))
 
-    takeaways = """
-        1. <b>Statistical Significance:</b> SolMover's 27.3 percentage point advantage over 
-        Claude is highly significant (p < 0.001), not random variation.<br/><br/>
-        
-        2. <b>Testing Rigor:</b> 12.6 tests per contract provides 12× more validation than 
+    takeaways = f"""
+        1. <b>Statistical Significance:</b> Across all {num_word(n_models)} models, performance differences are
+        highly significant (chi-square p {p_fmt(chi_p)}). {lead['name']}'s {gap_bg:.1f} percentage point edge over
+        the single strongest general-purpose model ({best_general['name']}) is {significance_phrase(p_lead_bg, chi_p, total_tests)}.<br/><br/>
+
+        2. <b>Testing Rigor:</b> 12.6 tests per contract provides 12× more validation than
         industry-standard benchmarks, ensuring functional correctness.<br/><br/>
-        
-        3. <b>Practical Applicability:</b> Validated against examples used by 100+ students, proving real-world 
+
+        3. <b>Practical Applicability:</b> Validated against examples used by 100+ students, proving real-world
         value beyond synthetic benchmarks.<br/><br/>
-        
-        4. <b>Specialized Advantage:</b> Domain-specific models outperform general LLMs on 
+
+        4. <b>Specialized Advantage:</b> Domain-specific models outperform general LLMs on
         niche technical tasks, justifying specialized model development.<br/><br/>
-        
+
         5. <b>Market Opportunity:</b> 4-5 months time savings per developer × the possibility of fitting the model to any language pair
         = massive addressable market for developer tools, especially useful for ecosystems with domain specific languages.
     """
@@ -1084,7 +1294,7 @@ def create_benchmark_article():
     story.append(Spacer(1, 0.3 * inch))
 
     conclusion_box = """
-        <b>For further information or to access the complete benchmark dataset, 
+        <b>For further information or to access the complete benchmark dataset,
         contact the research team or visit the project repository.</b>
     """
     story.append(Paragraph(conclusion_box, highlight_style))

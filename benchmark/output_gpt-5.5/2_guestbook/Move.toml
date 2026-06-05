@@ -1,0 +1,8 @@
+[package]
+name = "guestbook"
+edition = "2024.beta"
+
+[dependencies]
+
+[addresses]
+guestbook = "0x0"
